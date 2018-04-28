@@ -22,6 +22,9 @@ const WC_BOM_OPTIONS  = 'wc_bom_options';
  */
 class WC_Bill_Materials {
 
+
+
+
 	/**
 	 * @var null
 	 */
@@ -42,9 +45,11 @@ class WC_Bill_Materials {
 
 		include_once __DIR__ . '/classes/class-wcbm-settings.php';
 		include_once __DIR__ . '/classes/class-wcbm-post.php';
+		//include_once __DIR__ . '/classes/class-wcbm-db.php';
 		//include_once __DIR__.'/classes/functions.php';
 		$set  = WC_RP_Settings::getInstance();
 		$post = WC_RP_Post::getInstance();
+		//$db   = WC_Bom_Data::getInstance();
 		$opts = get_option( WC_BOM_SETTINGS );
 
 
