@@ -108,22 +108,18 @@ jQuery(document).ready(function($) {
 
   $('.chosen-select').chosen();
 
-  $('#wc_bom_settings[copy_product_data]').click(function() {
-    console.log(this);
-    alert('hi');
-  });
 
-  $('select').on('change', function(event, params) {
-    // can now use params.selected and params.deselected
-    console.log(event);
-    console.log(params);
-    var text = params['selected'];
-    swal(text);
-    //$('#p_it').attr('value', text);
-    $('#p_it').innerText = text;
+  $('#wc_bom_settings[copy_product_data]').on('change', function(event, params) {
+        // can now use params.selected and params.deselected
+        console.log(event);
+        console.log(params);
+        var text = params['selected'];
+        swal(text);
+        //$('#p_it').attr('value', text);
+        $('#p_it').innerText = text;
 
-    // alert('yo');
-  });
+        // alert('yo');
+      });
 
   //$("#form_field").chosen().change( … );
   //$("#form_field").trigger("chosen:updated");
