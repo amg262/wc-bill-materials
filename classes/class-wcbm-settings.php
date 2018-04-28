@@ -11,6 +11,8 @@ if ( ! is_admin() ) {
 	//wp_die( 'You must be an admin to view this.' );
 }
 
+
+
 /**
  * Class WC_Bom_Settings
  *
