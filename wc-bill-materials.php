@@ -20,7 +20,7 @@ const WC_BOM_OPTIONS  = 'wc_bom_options';
 /**
  * Class WC_Related_Products
  */
-class WC_Related_Products {
+class WC_Bill_Materials {
 
 	/**
 	 * @var null
@@ -40,8 +40,8 @@ class WC_Related_Products {
 	public function init() {
 
 
-		include_once __DIR__ . '/classes/class-wcrp-settings.php';
-		include_once __DIR__ . '/classes/class-wcrp-post.php';
+		include_once __DIR__ . '/classes/class-wcbm-settings.php';
+		include_once __DIR__ . '/classes/class-wcbm-post.php';
 		//include_once __DIR__.'/classes/functions.php';
 		$set  = WC_RP_Settings::getInstance();
 		$post = WC_RP_Post::getInstance();
@@ -386,7 +386,7 @@ class WC_Related_Products {
 			'Related Products',
 			'Related Products',
 			'manage_options',
-			'wc_related_products',
+			'WC_Bill_Materials',
 			[ $this, 'wc_rp_settings_page', ]
 		);
 	}
@@ -397,7 +397,7 @@ class WC_Related_Products {
 	 */
 	public function wc_rp_settings_page() {
 		if ( isset( $_POST['submit_custom_related_products'] ) && current_user_can( 'manage_options' ) ) {
-			check_admin_referer( 'wc_related_products', '_custom_related_products_nonce' );
+			check_admin_referer( 'WC_Bill_Materials', '_custom_related_products_nonce' );
 			// save settings
 			if ( isset( $_POST['wc_rp_empty_behavior'] ) && $_POST['wc_rp_empty_behavior'] != '' ) {
 				update_option( 'wc_rp_empty_behavior', $_POST['wc_rp_empty_behavior'] );
@@ -413,7 +413,7 @@ class WC_Related_Products {
 			echo '
 		
 		<form method="post" action="admin.php?page=wc_related_products">
-			' . wp_nonce_field( 'wc_related_products', '_custom_related_products_nonce', true, false ) . '
+			' . wp_nonce_field( 'WC_Bill_Materials', '_custom_related_products_nonce', true, false ) . '
 			<p>If I have not selected related products:
 				<select name="wc_rp_empty_behavior">
 					<option value="">Select random related products by category</option>
@@ -471,4 +471,4 @@ class WC_Related_Products {
 	}
 }
 
-$wcrp                 = WC_Related_Products::getInstance();
+$wcrp                 = WC_Bill_Materials::getInstance();

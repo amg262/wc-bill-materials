@@ -50,7 +50,7 @@ class WC_RP_DB {
 		global $wpdb;
 		global $jal_db_version;
 
-		$table_name = $wpdb->prefix . 'wc_bom';
+		$table_name = $wpdb->prefix . 'WC_Bill_Materials';
 
 		$charset_collate = $wpdb->get_charset_collate();
 

@@ -55,7 +55,7 @@ class WC_RP_Post {
 	public function register_assembly() {
 
 		$labels = [
-			'name'          => __( 'Assemblies', 'wc-bom' ),
+			'name'          => __( 'Assembly', 'wc-bom' ),
 			'singular_name' => __( 'Assembly', 'wc-bom' ),
 			'menu_name'     => __( 'Assembly', 'wc-bom' ),
 			'all_items'     => __( 'All Assemblies', 'wc-bom' ),
@@ -160,9 +160,37 @@ class WC_RP_Post {
 			'show_in_rest'       => true,
 			'show_in_quick_edit' => true,
 		];
-		register_taxonomy( 'part-category', [ 'part', 'assembly' ], $args );
+		register_taxonomy( 'part-category', [ 'part' ], $args );
 
 
+	}
+
+	/**
+	 *
+	 */
+	public function register_part_tags() {
+
+		$labels = [
+			'name'          => __( 'Part Tags', 'wc-bom' ),
+			'singular_name' => __( 'Part Tag', 'wc-bom' ),
+			'menu_name'     => __( 'Tags', 'wc-bom' ),
+		];
+
+		$args = [
+			'label'              => __( 'Part Tags', 'wc-bom' ),
+			'labels'             => $labels,
+			'public'             => true,
+			'hierarchical'       => false,
+			//'label' => 'Inventory Types',
+			'show_ui'            => true,
+			'show_in_menu'       => true,
+			'show_in_nav_menus'  => true,
+			'query_var'          => true,
+			'show_admin_column'  => true,
+			'show_in_rest'       => true,
+			'show_in_quick_edit' => true,
+		];
+		register_taxonomy( 'part-tags', [ 'part', 'assembly' ], $args );
 	}
 
 }
