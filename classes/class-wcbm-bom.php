@@ -36,7 +36,7 @@ class WC_Bom_Builder {
 
 		$json = json_encode($this->assembly_items);
 
-		echo $json;
+		//echo $json;
 
 		return $json;
 	}

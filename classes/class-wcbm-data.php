@@ -9,7 +9,7 @@
 class WC_Bom_Data {
 
 
-	public $wcbm_settings = [];
+	public $wc_bom_settings = [];
 	/**
 	 * @var null
 	 */
@@ -54,6 +54,12 @@ class WC_Bom_Data {
 		return static::$instance;
 	}
 
+
+	public function wc_bom_settings() {
+
+		$settings = get_option('wc_bom_settings');
+
+	}
 
 	/**
 	 *

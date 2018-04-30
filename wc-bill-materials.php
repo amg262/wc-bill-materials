@@ -10,11 +10,13 @@ Author URI:  http://andrewgunn.net
 /**
  *
  */
-const WC_BOM_SETTINGS = 'wc_bom_settings';
+
+const WC_BOM_DB_VERSION = 1;
+const WC_BOM_SETTINGS   = 'wc_bom_settings';
 /**
  *
  */
-const WC_BOM_OPTIONS  = 'wc_bom_options';
+const WC_BOM_OPTIONS    = 'wc_bom_options';
 
 
 /**
@@ -480,4 +482,4 @@ class WC_Bill_Materials {
 	}
 }
 
-$wcrp                 = WC_Bill_Materials::getInstance();
+$wcrp                   = WC_Bill_Materials::getInstance();

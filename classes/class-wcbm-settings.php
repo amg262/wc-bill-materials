@@ -20,21 +20,19 @@ if ( ! is_admin() ) {
 class WC_RP_Settings {//implements WC_Abstract_Settings {
 
 	/**
+	 * @var array
+	 */
+	public $wc_bom_settings = [];
+
+	public $option_list = [];
+	/**
 	 * @var null
 	 */
 	protected static $instance;
-
 	/**
 	 * @var array
 	 */
 	protected $wcrp_data = [];
-
-	/**
-	 * @var array
-	 */
-	protected $plugin_options = [];
-
-
 	private $option_names = [];
 
 
@@ -125,15 +123,15 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
         </div>
 	<?php }
 
-
 	/**
 	 * Options page callback
 	 */
 	public function settings_page() {
 
-		global $wc_bom_settings;
+		$this->wc_bom_settings();
 
-		var_dump( $_GET );
+
+		var_dump( $_POST );
 		$wc_bom_settings = get_option( WC_BOM_SETTINGS );
 
 		$active_tab = ( isset( $_GET['tab'] ) ) ? $_GET['tab'] : 'all';
@@ -176,6 +174,14 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 		<?php
 	}
 
+	protected function wc_bom_settings() {
+
+		$this->wc_bom_settings = get_option( 'wc_bom_settings' );
+
+		return $this->wc_bom_settings;
+
+	}
+
 	/**
 	 *
 	 */
@@ -184,7 +190,7 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 
 		$ajax_data = $this->get_data();
 
-		$opts = get_option( 'wc_bom_settings' );
+		$opts = $this->wc_bom_settings;
 
 		$p = $opts['copy_product_data'];
 
@@ -198,7 +204,6 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 		];
 		wp_localize_script( 'bom_adm_js', 'ajax_object', $ajax_object );
 	}
-
 
 	/**
 	 * @return array
@@ -226,7 +231,6 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 		return $out;
 	}
 
-
 	/**
 	 *
 	 */
@@ -242,7 +246,35 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 
 		$meta = get_post_meta( $product, '_sku' );
 
-		echo json_encode( $meta );
+
+		//include_once __DIR__.'/class-wcbm-bom.php';
+
+		//$a = new WC_Bom_Builder();
+		//$a->dothis($product);
+
+		$p = get_post( $product );
+
+		$po = get_post_meta( $p->ID );
+		if ( have_rows( 'product_assembly', $p->ID ) ) {
+
+			$i = 0;
+			while ( have_rows( 'product_assembly', $p->ID ) ) : the_row();
+				$i ++;
+			endwhile;
+		}
+
+		//delete_option('wc_bom_settings');
+
+		$this->wc_bom_settings['copy_product_data'] = $product;
+
+		update_option( 'wc_bom_settings', $this->wc_bom_settings );
+
+
+
+		var_dump($this->wc_bom_settings);
+		echo json_encode( get_option( 'wc_bom_settings' ) );
+		echo 'ZIP - ' . $i . ' <br>';
+		echo json_encode( $po );
 
 
 		wp_die( 'Ajax finished.' );
@@ -257,44 +289,42 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 	 */
 	public function sanitize( $input ) {
 
-		$new_input = [];
-		if ( isset( $input['show_related'] ) ) {
-			$new_input['show_related'] = absint( $input['show_related'] );
-		}
+		/*	$new_input = [];
+			if ( isset( $input['show_related'] ) ) {
+				$new_input['show_related'] = absint( $input['show_related'] );
+			}
 
-		if ( isset( $input['related_total'] ) ) {
-			$new_input['related_total'] = absint( $input['related_total'] );
-		}
-		if ( isset( $input['related_text'] ) ) {
-			$new_input['related_text'] = sanitize_text_field( $input['related_text'] );
-		}
-		//if ( isset( $input['copy_product_data'] ) ) {
-		//		$new_input['copy_product_data'] = absint( $input['copy_product_data'] );
-		//}
+			if ( isset( $input['related_total'] ) ) {
+				$new_input['related_total'] = absint( $input['related_total'] );
+			}
+			if ( isset( $input['related_text'] ) ) {
+				$new_input['related_text'] = sanitize_text_field( $input['related_text'] );
+			}
+			//if ( isset( $input['copy_product_data'] ) ) {
+			//		$new_input['copy_product_data'] = absint( $input['copy_product_data'] );
+			//}
 
-		//	if ( isset( $input['prod_bom'] ) ) {
-		//		$new_input['pm'] = absint( $input['prod_bom'] );
-		//	}
+			//	if ( isset( $input['prod_bom'] ) ) {
+			//		$new_input['pm'] = absint( $input['prod_bom'] );
+			//	}
 
-		//if ( isset( $input[ 'title' ] ) ) {
-		//	$new_input[ 'title' ] = sanitize_text_field( $input[ 'title' ] );
-		//}
-		return $new_input;
+			//if ( isset( $input[ 'title' ] ) ) {
+			//	$new_input[ 'title' ] = sanitize_text_field( $input[ 'title' ] );
+			//}
+			return $new_input;*/
+		return $input;
 	}
-
 
 	/**
 	 * Get the settings option array and print one of its values
 	 */
 	public function settings_callback() {
 
-		global $wc_bom_settings;
-		$wc_bom_settings = get_option( 'wc_bom_settings' );
-
 
 		// Enqueue Media Library Use
 		wp_enqueue_media();
-		var_dump( $wc_bom_settings ); ?>
+		var_dump( $this->wc_bom_settings );
+		?>
         <div id="postbox-container-1" class="postbox-container">
 
             <div id="normal-sortables" class="meta-box-sortables">
@@ -346,9 +376,8 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 	 * @return string
 	 */
 	protected function settings_fields() {
-		global $wc_bom_settings;
 
-		$wc_bom_settings = get_option( 'wc_bom_settings' ); ?>
+		$wc_bom_settings = $this->wc_bom_settings ?>
 
         <div id="wcrp-related">
             <table class="form-table">
@@ -467,11 +496,9 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 	 */
 	protected function format_key( $text ) {
 		$str = str_replace( [ '-', ' ' ], '_', $text );
-
-		$str_lower = strtolower( $str );
-
-
-		return $str_lower;
+		$lower = strtolower( $str );
+		$this->option_names[] = $lower;
+		return $lower;
 	}
 
 	/**
@@ -498,4 +525,5 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 
 		return $option;
 	}
+
 }
