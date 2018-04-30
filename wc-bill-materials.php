@@ -10,11 +10,6 @@ Author URI:  http://andrewgunn.net
 /**
  *
  */
-
-const WC_BOM_DB_VERSION = 1;
-
-const WC_BOM_DB_ID = 'A';
-
 const WC_BOM_SETTINGS = 'wc_bom_settings';
 /**
  *
@@ -464,10 +459,15 @@ class WC_Bill_Materials {
 		$url  = 'assets/';
 		$url2 = 'assets/';
 
-		wp_enqueue_script( 'sweetalertjs', 'https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.0/sweetalert.min.js' );
-		wp_enqueue_style( 'sweetalert_css', 'https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css' );
+		//wp_enqueue_script( 'sweetalertjs', 'https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.0/sweetalert.min.js' );
+		//wp_enqueue_style( 'sweetalert_css', 'https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css' );
 		wp_register_script( 'bom_adm_js', plugins_url( $url . 'wc-bom-admin.js', __FILE__ ), [ 'jquery' ] );
 		wp_register_style( 'bom_css', plugins_url( $url2 . 'wc-bom.css', __FILE__ ) );
+
+
+		wp_enqueue_script( 'sweetalertjs', 'https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js' );
+		wp_enqueue_style( 'sweetalert_css', 'https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css' );
+
 		wp_register_script( 'chosen_js',
 			'https://cdnjs.cloudflare.com/ajax/libs/chosen/1.7.0/chosen.jquery.min.js', [ 'jquery' ] );
 		wp_register_style( 'chosen_css',

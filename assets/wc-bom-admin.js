@@ -110,7 +110,6 @@ jQuery(document).ready(function($) {
 
   $('.chosen-select').chosen();
 
-
   prod_bom = $('#prod_bom').val();
 
   $('select.wc_bom_select.chosen-select').on('change', function(event, params) {
@@ -119,7 +118,7 @@ jQuery(document).ready(function($) {
     console.log(params);
     // swal(event);
 
-    $('#prod_bom').innerText = params['selected'];
+    // $('#prod_bom').innerText = params['selected'];
 
     $('#prod_bom').attr('value', params['selected']);
 
@@ -127,23 +126,6 @@ jQuery(document).ready(function($) {
     swal(prod_bom);
 
   });
-
-  //console.log(ajax_data);
-
-  $('#wc_bom_settings[copy_product_data]').
-      on('change', function(event, params) {
-        // can now use params.selected and params.deselected
-        console.log(event);
-        console.log(params);
-        var text = params['selected'];
-        swal(text);
-        //$('#p_it').attr('value', text);
-        $('#p_it').innerText = text;
-
-        // alert('yo');
-      });
-
-
 
   //$("#form_field").chosen().change( … );
   //$("#form_field").trigger("chosen:updated");
@@ -158,7 +140,7 @@ jQuery(document).ready(function($) {
       'data': ajax_object.ajax_data,
       'product': prod_bom,
     };
-    console.log($('#prod_bom'));
+    // console.log($('#prod_bom'));
 
     console.log(data);
 

@@ -133,12 +133,7 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 
 		global $wc_bom_settings;
 
-		include_once __DIR__ . '/class-wcbm-data.php';
-		$db = WC_Bom_Data::getInstance();
-
-		var_dump( get_option( 'wc_bom_db' ) );
-
-		//var_dump( $_GET );
+		var_dump( $_GET );
 		$wc_bom_settings = get_option( WC_BOM_SETTINGS );
 
 		$active_tab = ( isset( $_GET['tab'] ) ) ? $_GET['tab'] : 'all';
@@ -247,15 +242,7 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 
 		$meta = get_post_meta( $product, '_sku' );
 
-
-		//include_once __DIR__.'/class-wcbm-bom.php';
-
-		//$a = new WC_Bom_Builder();
-        //$a->dothis($product);
-
-
-
-		//echo json_encode( $meta );
+		echo json_encode( $meta );
 
 
 		wp_die( 'Ajax finished.' );
@@ -281,13 +268,13 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 		if ( isset( $input['related_text'] ) ) {
 			$new_input['related_text'] = sanitize_text_field( $input['related_text'] );
 		}
-		if ( isset( $input['copy_product_data'] ) ) {
-			$new_input['cpd'] = absint( $input['copy_product_data'] );
-		}
+		//if ( isset( $input['copy_product_data'] ) ) {
+		//		$new_input['copy_product_data'] = absint( $input['copy_product_data'] );
+		//}
 
-		if ( isset( $input['prod_bom'] ) ) {
-			$new_input['pm'] = absint( $input['prod_bom'] );
-		}
+		//	if ( isset( $input['prod_bom'] ) ) {
+		//		$new_input['pm'] = absint( $input['prod_bom'] );
+		//	}
 
 		//if ( isset( $input[ 'title' ] ) ) {
 		//	$new_input[ 'title' ] = sanitize_text_field( $input[ 'title' ] );
