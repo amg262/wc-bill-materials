@@ -131,7 +131,7 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 		$this->wc_bom_settings();
 
 
-		var_dump( $_POST );
+		//var_dump( $_POST );
 		$wc_bom_settings = get_option( WC_BOM_SETTINGS );
 
 		$active_tab = ( isset( $_GET['tab'] ) ) ? $_GET['tab'] : 'all';
@@ -192,8 +192,8 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 
 		$settings = $this->wc_bom_settings;
 		$opts     = $this->wc_bom_settings;
-
-		$p = $opts['copy_product_data'];
+		$icon     = plugins_url( 'assets/images/ajax-loader.gif', WCB );
+		$p        = $opts['copy_product_data'];
 
 
 		$ajax_object = [
@@ -203,6 +203,7 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 			'action'    => [ $this, 'wco_ajax' ], //'options'  => 'wc_bom_option[opt]',
 			'ajax_data' => $p,
 			'settings'  => json_encode( $this->wc_bom_settings() ),
+			'icon'      => $icon,
 		];
 		wp_localize_script( 'bom_adm_js', 'ajax_object', $ajax_object );
 	}
@@ -482,7 +483,8 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 
                 <tr>
                     <th>
-
+                        <img style="display:none;" src="<?php echo plugins_url( 'assets/images/ajax-loader.gif', WCB ) ?>"
+                             id="wcb_akax" class="wcb_ajax"/>
                     </th>
                     <td>
                         <span class="button primary" id="button_hit" name="button_hit">Generate</span>

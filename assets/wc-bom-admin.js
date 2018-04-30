@@ -17,6 +17,7 @@ var product = null;
 var data = null;
 var val = null;
 var id = null;
+//var validate = require("validate.js");
 
 var prod_bom = 0;
 
@@ -162,8 +163,6 @@ jQuery(document).ready(function($) {
       'prod_bom': e,
     };
 
-
-
     var data = {
       'url': ajax_object.ajax_url,
       'action': 'wco_ajax',
@@ -171,14 +170,13 @@ jQuery(document).ready(function($) {
       'data': ajax_object.ajax_data,
       'product': prod_bom,
       'settings': ajax_object.settings,
-      'input':arr,
+      'input': arr,
 
     };
     // console.log($('#prod_bom'));
 
+
     console.log(data);
-
-
 
     console.log(a);
 
