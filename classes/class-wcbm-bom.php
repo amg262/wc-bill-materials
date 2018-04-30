@@ -8,42 +8,37 @@
 
 class WC_Bom_Builder {
 
+	private $product_assembly = [];
+
+	private $product = null;
+
+	private $assembly_items = [];
+
+	private $parts = [];
+
+	private $part_data = [];
 
 	/**
-	 * @var null
+	 * WC_Bom_Builder constructor.
 	 */
-	protected static $instance = null;
+	public function __construct() {
 
-	private $prod;
-
-	/**
-	 * WC_Related_Products constructor.
-	 */
-	protected function __construct( $product ) {
-		$this->setProd( new WC_Product( $product->ID ) );
-	}
-
-	/**
-	 * @return \WC_Product
-	 */
-	public function getProd(): \WC_Product {
-		return $this->prod;
-	}
-
-	/**
-	 * @param \WC_Product $prod
-	 */
-	public function setProd( \WC_Product $prod ): void {
-		$this->prod = $prod;
-	}
-
-	public function get_this() {
-		$pa = get_field( 'product_assembly' );
-	}
-
-	protected function init() {
 
 	}
 
+
+	public function dothis($prod_id) {
+
+		$product = wc_get_product($prod_id);
+
+		$this->assembly_items[] = $product['_product_assembly'];
+
+
+		$json = json_encode($this->assembly_items);
+
+		echo $json;
+
+		return $json;
+	}
 
 }

@@ -110,6 +110,7 @@ jQuery(document).ready(function($) {
 
   $('.chosen-select').chosen();
 
+
   prod_bom = $('#prod_bom').val();
 
   $('select.wc_bom_select.chosen-select').on('change', function(event, params) {
@@ -127,7 +128,6 @@ jQuery(document).ready(function($) {
 
   });
 
-  $('submit').click()
   //console.log(ajax_data);
 
   $('#wc_bom_settings[copy_product_data]').
@@ -143,26 +143,8 @@ jQuery(document).ready(function($) {
         // alert('yo');
       });
 
-  $('#install_db').click(function() {
 
-    swal({
-      title: 'Are you sure?',
-      text: 'Once deleted, you will not be able to recover this imaginary file!',
-      icon: 'warning',
-      buttons: true,
-      dangerMode: true,
-    }).then((willDelete) => {
-      if (willDelete) {
 
-        swal('Poof! Your imaginary file has been deleted!' + p, {
-          icon: 'success',
-        });
-      } else {
-        swal('Your imaginary file is safe!');
-      }
-    });
-
-  });
   //$("#form_field").chosen().change( … );
   //$("#form_field").trigger("chosen:updated");
 

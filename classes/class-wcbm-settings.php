@@ -247,7 +247,15 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 
 		$meta = get_post_meta( $product, '_sku' );
 
-		echo json_encode( $meta );
+
+		//include_once __DIR__.'/class-wcbm-bom.php';
+
+		//$a = new WC_Bom_Builder();
+        //$a->dothis($product);
+
+
+
+		//echo json_encode( $meta );
 
 
 		wp_die( 'Ajax finished.' );
