@@ -133,7 +133,12 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 
 		global $wc_bom_settings;
 
-		var_dump( $_GET );
+		include_once __DIR__ . '/class-wcbm-data.php';
+		$db = WC_Bom_Data::getInstance();
+
+		var_dump( get_option( 'wc_bom_db' ) );
+
+		//var_dump( $_GET );
 		$wc_bom_settings = get_option( WC_BOM_SETTINGS );
 
 		$active_tab = ( isset( $_GET['tab'] ) ) ? $_GET['tab'] : 'all';

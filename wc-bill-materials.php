@@ -10,6 +10,11 @@ Author URI:  http://andrewgunn.net
 /**
  *
  */
+
+const WC_BOM_DB_VERSION = 1;
+
+const WC_BOM_DB_ID = 'A';
+
 const WC_BOM_SETTINGS = 'wc_bom_settings';
 /**
  *
