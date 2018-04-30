@@ -35,6 +35,9 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 	protected $plugin_options = [];
 
 
+	private $option_names = [];
+
+
 	/**
 	 * WC_Bom constructor.
 	 */
@@ -181,12 +184,17 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 
 		$ajax_data = $this->get_data();
 
+		$opts = get_option( 'wc_bom_settings' );
+
+		$p = $opts['copy_product_data'];
+
+
 		$ajax_object = [
 			'ajax_url'  => admin_url( 'admin-ajax.php' ),
 			'nonce'     => wp_create_nonce( 'ajax_nonce' ),
-			'product'   => $_POST,
+			'product'   => $p,
 			'action'    => [ $this, 'wco_ajax' ], //'options'  => 'wc_bom_option[opt]',
-			'ajax_data' => $_GET['prod_bom'],
+			'ajax_data' => $p,
 		];
 		wp_localize_script( 'bom_adm_js', 'ajax_object', $ajax_object );
 	}
@@ -219,8 +227,6 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 	}
 
 
-
-
 	/**
 	 *
 	 */
@@ -234,9 +240,9 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 		$product = (int) $_POST['product'];
 
 
-		$meta = get_post_meta($product, '_sku');
+		$meta = get_post_meta( $product, '_sku' );
 
-		echo json_encode($meta);
+		echo json_encode( $meta );
 
 
 		wp_die( 'Ajax finished.' );
@@ -251,15 +257,29 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 	 */
 	public function sanitize( $input ) {
 
-		//$new_input = [];
-		//if ( isset( $input['license_key'] ) ) {
-		//$new_input['license_key'] = sanitize_text_field( $input['license_key'] );
-		//}
+		$new_input = [];
+		if ( isset( $input['show_related'] ) ) {
+			$new_input['show_related'] = absint( $input['show_related'] );
+		}
+
+		if ( isset( $input['related_total'] ) ) {
+			$new_input['related_total'] = absint( $input['related_total'] );
+		}
+		if ( isset( $input['related_text'] ) ) {
+			$new_input['related_text'] = sanitize_text_field( $input['related_text'] );
+		}
+		if ( isset( $input['copy_product_data'] ) ) {
+			$new_input['cpd'] = absint( $input['copy_product_data'] );
+		}
+
+		if ( isset( $input['prod_bom'] ) ) {
+			$new_input['pm'] = absint( $input['prod_bom'] );
+		}
 
 		//if ( isset( $input[ 'title' ] ) ) {
 		//	$new_input[ 'title' ] = sanitize_text_field( $input[ 'title' ] );
 		//}
-		return $input;
+		return $new_input;
 	}
 
 
@@ -365,11 +385,11 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
                                value="<?php echo $wc_bom_settings[ $key ]; ?>"/>
                     </td>
                 </tr>
-                <tr><?php $label = 'Related Columns';
+                <tr><?php $label = 'Related Text';
 					$key         = $this->format_key( $label );
 					$obj         = $wc_bom_settings[ $key ]; ?>
                     <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
-                    <td><input type="number"
+                    <td><input type="text"
                                title="wc_bom_settings[<?php _e( $key ); ?>]"
                                id="wc_bom_settings[<?php _e( $key ); ?>]"
                                name="wc_bom_settings[<?php _e( $key ); ?>]"
@@ -377,106 +397,22 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
                     </td>
                 </tr>
 
-                <tr><?php $label = 'Related Priority';
+                <tr><?php $label = 'Install DB';
 					$key         = $this->format_key( $label );
 					$obj         = $wc_bom_settings[ $key ]; ?>
                     <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
-                    <td><input type="number"
-                               title="wc_bom_settings[<?php _e( $key ); ?>]"
-                               id="wc_bom_settings[<?php _e( $key ); ?>]"
-                               name="wc_bom_settings[<?php _e( $key ); ?>]"
-                               value="<?php echo $wc_bom_settings[ $key ]; ?>"/>
+                    <td>
+                        <span class="button primary" id="install_db" name="install_db">Install</span>
                     </td>
+                    <th>
+                        <input type="submit" class="button button-primary"
+                               id="<?php _e( $key ); ?>"
+                               name="<?php _e( $key ); ?>"
+                               value="Install DB"/>
+                    </th>
                 </tr>
 
-                <tr>
-					<?php $label = 'Show UpSells'; ?>
-					<?php $key = $this->format_key( $label ); ?>
-					<?php $opt = $wc_bom_settings[ $key ]; ?>
-                    <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
-                    <td><input type="checkbox" id="wc_bom_settings[<?php _e( $key ); ?>]"
-                               title="wc_bom_settings[<?php _e( $key ); ?>]"
-                               name="wc_bom_settings[<?php _e( $key ); ?>]"
-                               value="1"<?php checked( 1, $wc_bom_settings[ $key ], true ); ?> /></td>
-                </tr>
-                <tr><?php $label = 'UpSell Total';
-					$key         = $this->format_key( $label );
-					$obj         = $wc_bom_settings[ $key ]; ?>
-                    <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
-                    <td><input type="number"
-                               title="wc_bom_settings[<?php _e( $key ); ?>]"
-                               id="wc_bom_settings[<?php _e( $key ); ?>]"
-                               name="wc_bom_settings[<?php _e( $key ); ?>]"
-                               value="<?php echo $wc_bom_settings[ $key ]; ?>"/>
-                    </td>
-                </tr>
-                <tr><?php $label = 'UpSell Columns';
-					$key         = $this->format_key( $label );
-					$obj         = $wc_bom_settings[ $key ]; ?>
-                    <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
-                    <td><input type="number"
-                               title="wc_bom_settings[<?php _e( $key ); ?>]"
-                               id="wc_bom_settings[<?php _e( $key ); ?>]"
-                               name="wc_bom_settings[<?php _e( $key ); ?>]"
-                               value="<?php echo $wc_bom_settings[ $key ]; ?>"/>
-                    </td>
-                </tr>
 
-                <tr><?php $label = 'UpSell Priority';
-					$key         = $this->format_key( $label );
-					$obj         = $wc_bom_settings[ $key ]; ?>
-                    <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
-                    <td><input type="number"
-                               title="wc_bom_settings[<?php _e( $key ); ?>]"
-                               id="wc_bom_settings[<?php _e( $key ); ?>]"
-                               name="wc_bom_settings[<?php _e( $key ); ?>]"
-                               value="<?php echo $wc_bom_settings[ $key ]; ?>"/>
-                    </td>
-                </tr>
-
-                <tr>
-					<?php $label = 'Show CrossSells'; ?>
-					<?php $key = $this->format_key( $label ); ?>
-					<?php $opt = $wc_bom_settings[ $key ]; ?>
-                    <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
-                    <td><input type="checkbox" id="wc_bom_settings[<?php _e( $key ); ?>]"
-                               title="wc_bom_settings[<?php _e( $key ); ?>]"
-                               name="wc_bom_settings[<?php _e( $key ); ?>]"
-                               value="1"<?php checked( 1, $wc_bom_settings[ $key ], true ); ?> /></td>
-                </tr>
-                <tr><?php $label = 'CrossSell Total';
-					$key         = $this->format_key( $label );
-					$obj         = $wc_bom_settings[ $key ]; ?>
-                    <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
-                    <td><input type="number"
-                               title="wc_bom_settings[<?php _e( $key ); ?>]"
-                               id="wc_bom_settings[<?php _e( $key ); ?>]"
-                               name="wc_bom_settings[<?php _e( $key ); ?>]"
-                               value="<?php echo $wc_bom_settings[ $key ]; ?>"/>
-                    </td>
-                </tr>
-                <tr><?php $label = 'CrossSell Columns';
-					$key         = $this->format_key( $label );
-					$obj         = $wc_bom_settings[ $key ]; ?>
-                    <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
-                    <td><input type="number"
-                               title="wc_bom_settings[<?php _e( $key ); ?>]"
-                               id="wc_bom_settings[<?php _e( $key ); ?>]"
-                               name="wc_bom_settings[<?php _e( $key ); ?>]"
-                               value="<?php echo $wc_bom_settings[ $key ]; ?>"/>
-                    </td>
-                </tr>
-                <tr><?php $label = 'CrossSell Priority';
-					$key         = $this->format_key( $label );
-					$obj         = $wc_bom_settings[ $key ]; ?>
-                    <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
-                    <td><input type="number"
-                               title="wc_bom_settings[<?php _e( $key ); ?>]"
-                               id="wc_bom_settings[<?php _e( $key ); ?>]"
-                               name="wc_bom_settings[<?php _e( $key ); ?>]"
-                               value="<?php echo $wc_bom_settings[ $key ]; ?>"/>
-                    </td>
-                </tr>
                 </tbody>
             </table>
         </div>
@@ -532,7 +468,10 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 	protected function format_key( $text ) {
 		$str = str_replace( [ '-', ' ' ], '_', $text );
 
-		return strtolower( $str );
+		$str_lower = strtolower( $str );
+
+
+		return $str_lower;
 	}
 
 	/**
@@ -544,10 +483,10 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 		$option = '';
 
 
-		var_dump( $data );
+		//var_dump( $data );
 		foreach ( $this->get_data() as $arr ) {
 
-			var_dump( $arr );
+			//var_dump( $arr );
 			if ( $data == $arr['id'] ) {
 				$selected = 'selected="selected"';
 			} else {
