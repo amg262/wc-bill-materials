@@ -18,6 +18,8 @@ var data = null;
 var val = null;
 var id = null;
 
+var prod_bom = 0;
+
 jQuery(document).ready(function($) {
 
 
@@ -109,7 +111,27 @@ jQuery(document).ready(function($) {
   $('.chosen-select').chosen();
 
 
-  $('#wc_bom_settings[copy_product_data]').on('change', function(event, params) {
+  prod_bom = $('#prod_bom').val();
+
+  $('select.wc_bom_select.chosen-select').on('change', function(event, params) {
+
+    console.log(event);
+    console.log(params);
+    // swal(event);
+
+    $('#prod_bom').innerText = params['selected'];
+
+    $('#prod_bom').attr('value', params['selected']);
+
+    prod_bom = params['selected'];
+    swal(prod_bom);
+
+  });
+
+  //console.log(ajax_data);
+
+  $('#wc_bom_settings[copy_product_data]').
+      on('change', function(event, params) {
         // can now use params.selected and params.deselected
         console.log(event);
         console.log(params);
@@ -121,22 +143,27 @@ jQuery(document).ready(function($) {
         // alert('yo');
       });
 
+
+
   //$("#form_field").chosen().change( … );
   //$("#form_field").trigger("chosen:updated");
 
   $('#button_hit').click(function() {
+
+    swal(prod_bom);
     var data = {
       'url': ajax_object.ajax_url,
       'action': 'wco_ajax',
       'security': ajax_object.nonce,
       'data': ajax_object.ajax_data,
-      'product': val,
+      'product': prod_bom,
     };
+    console.log($('#prod_bom'));
 
     console.log(data);
 
     sweetAlert({
-          title: 'Export Product\'s BOM?',
+          title: 'Export Product\'s BOM? ' + prod_bom,
           text: 'Submit to run ajax request',
           type: 'info',
           showCancelButton: true,

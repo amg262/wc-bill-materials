@@ -12,7 +12,6 @@ if ( ! is_admin() ) {
 }
 
 
-
 /**
  * Class WC_Bom_Settings
  *
@@ -25,8 +24,14 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 	 */
 	protected static $instance;
 
+	/**
+	 * @var array
+	 */
 	protected $wcrp_data = [];
 
+	/**
+	 * @var array
+	 */
 	protected $plugin_options = [];
 
 
@@ -124,6 +129,8 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 	public function settings_page() {
 
 		global $wc_bom_settings;
+
+		var_dump( $_GET );
 		$wc_bom_settings = get_option( WC_BOM_SETTINGS );
 
 		$active_tab = ( isset( $_GET['tab'] ) ) ? $_GET['tab'] : 'all';
@@ -177,14 +184,17 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 		$ajax_object = [
 			'ajax_url'  => admin_url( 'admin-ajax.php' ),
 			'nonce'     => wp_create_nonce( 'ajax_nonce' ),
-			'ajax_data' => $ajax_data,
+			'product'   => $_POST,
 			'action'    => [ $this, 'wco_ajax' ], //'options'  => 'wc_bom_option[opt]',
-			//'product'   => $this->get_data(),
+			'ajax_data' => $_GET['prod_bom'],
 		];
 		wp_localize_script( 'bom_adm_js', 'ajax_object', $ajax_object );
 	}
 
 
+	/**
+	 * @return array
+	 */
 	public function get_data() {
 
 		$args = [
@@ -198,6 +208,8 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 
 		$out   = [];
 		$posts = get_posts( $args );
+
+
 		foreach ( $posts as $p ) {
 			$out[] = [ 'id' => $p->ID, 'text' => $p->post_title ];
 		}
@@ -205,6 +217,9 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 
 		return $out;
 	}
+
+
+
 
 	/**
 	 *
@@ -216,28 +231,12 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
 		}
 
-		$prod = $_POST['product'];
+		$product = (int) $_POST['product'];
 
-		var_dump( $_POST );
 
-		//var_dump( $_POST );
-		$args = [
-			'post_type'   => 'product',
-			'post_title'  => $prod,
-			'post_status' => 'publish',
-		];
+		$meta = get_post_meta($product, '_sku');
 
-		$prod = get_posts( $args );
-		$i    = 0;
-		foreach ( $prod as $p ) {
-
-			$e = get_post_meta( $p->ID, '_related_ids' );
-
-			if ( count( $e ) > 0 ) {
-				$j = json_encode( $e );
-				echo $j;
-			}
-		}
+		echo json_encode($meta);
 
 
 		wp_die( 'Ajax finished.' );
@@ -490,31 +489,22 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
                     <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
                     <td>
                         <select id="wc_bom_settings[<?php _e( $key ); ?>]" name="wc_bom_settings[<?php _e( $key ); ?>]"
-                                data-placeholder="wc_bom_settings[<?php _e( $key ); ?>]"
-                                class="prod-select chosen-select">
+                                data-placeholder="Select Product" value="wc_bom_settings[<?php _e( $key ); ?>]"
+                                class="prod-select wc_bom_select chosen-select">
 							<?php _e( $this->build_select_options( $wc_bom_settings[ $key ] ), 'wc-related-products' ); ?>
                         </select>
                     </td>
                     <th>
-
+                        <input type="hidden"
+                               id="prod_bom"
+                               name="prod_bom"
+                               value="<?php echo $wc_bom_settings[ $key ]; ?>"/>
                     </th>
                     <td>
                         <div id="p_out" name="p_out"><span id="p_it" name="p_it">Hello there!</span></div>
                     </td>
                 </tr>
 
-                <tr><?php $label = 'Paste Data Product';
-					$key         = $this->format_key( $label );
-					$obj         = $wc_bom_settings[ $key ]; ?>
-                    <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
-                    <td>
-                        <select id="wc_bom_settings[<?php _e( $key ); ?>]" name="wc_bom_settings[<?php _e( $key ); ?>]"
-                                data-placeholder="wc_bom_settings[<?php _e( $key ); ?>]"
-                                class="prod-select chosen-select">
-							<?php _e( $this->build_select_options( $wc_bom_settings[ $key ] ), 'wc-related-products' ); ?>
-                        </select>
-                    </td>
-                </tr>
                 <tr>
                     <th>
 
@@ -545,16 +535,25 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 		return strtolower( $str );
 	}
 
+	/**
+	 * @param $data
+	 *
+	 * @return string
+	 */
 	protected function build_select_options( $data ) {
 		$option = '';
 
+
+		var_dump( $data );
 		foreach ( $this->get_data() as $arr ) {
-			if ( $data === $arr['text'] ) {
+
+			var_dump( $arr );
+			if ( $data == $arr['id'] ) {
 				$selected = 'selected="selected"';
 			} else {
 				$selected = '';
 			}
-			$option .= '<option id="' . $arr['id'] . '" value="' . $arr['text'] . '" ' . $selected . '">'
+			$option .= '<option id="' . $arr['id'] . '" value="' . $arr['id'] . '" ' . $selected . '">'
 			           . '<strong>' . $arr['id'] . '</strong>&nbsp;:&nbsp;' . substr( $arr['text'], 0, 40 ) . '</option>';
 		}
 
