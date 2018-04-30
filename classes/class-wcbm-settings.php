@@ -151,7 +151,7 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
                     <?php echo $active_tab === 'settings' ? 'nav-tab-active' : ''; ?>">Settings</a>
                 </h2>
 				<?php ?>
-                <form method="post" action="options.php">
+                <form method="post" id="wc_bom_form" action="options.php">
                     <div id="poststuff">
 
                         <div id="post-body" class="metabox-holder columns-2">
@@ -190,7 +190,8 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 
 		$ajax_data = $this->get_data();
 
-		$opts = $this->wc_bom_settings;
+		$settings = $this->wc_bom_settings;
+		$opts     = $this->wc_bom_settings;
 
 		$p = $opts['copy_product_data'];
 
@@ -201,6 +202,7 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 			'product'   => $p,
 			'action'    => [ $this, 'wco_ajax' ], //'options'  => 'wc_bom_option[opt]',
 			'ajax_data' => $p,
+			'settings'  => json_encode( $this->wc_bom_settings() ),
 		];
 		wp_localize_script( 'bom_adm_js', 'ajax_object', $ajax_object );
 	}
@@ -262,17 +264,18 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 				$i ++;
 			endwhile;
 		}
-
-		//delete_option('wc_bom_settings');
-
-		$this->wc_bom_settings['copy_product_data'] = $product;
-
-		update_option( 'wc_bom_settings', $this->wc_bom_settings );
+		$arg = [];
+		$set = $_POST['settings'];
+		$in  = $_POST['input'];
 
 
+		update_option( 'wc_bom_settings', $in );
 
-		var_dump($this->wc_bom_settings);
-		echo json_encode( get_option( 'wc_bom_settings' ) );
+		echo $in;
+		//var_dump( get_option( 'wc_bom_settings' ) );
+		echo json_decode( $set );
+
+		//echo json_encode( get_option( 'wc_bom_settings' ) );
 		echo 'ZIP - ' . $i . ' <br>';
 		echo json_encode( $po );
 
@@ -289,36 +292,41 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 	 */
 	public function sanitize( $input ) {
 
-		/*	$new_input = [];
-			if ( isset( $input['show_related'] ) ) {
-				$new_input['show_related'] = absint( $input['show_related'] );
-			}
+		$new_input = [];
+		if ( isset( $input['show_related'] ) ) {
+			$new_input['show_related'] = absint( $input['show_related'] );
+		}
 
-			if ( isset( $input['related_total'] ) ) {
-				$new_input['related_total'] = absint( $input['related_total'] );
-			}
-			if ( isset( $input['related_text'] ) ) {
-				$new_input['related_text'] = sanitize_text_field( $input['related_text'] );
-			}
-			//if ( isset( $input['copy_product_data'] ) ) {
-			//		$new_input['copy_product_data'] = absint( $input['copy_product_data'] );
-			//}
+		if ( isset( $input['related_total'] ) ) {
 
-			//	if ( isset( $input['prod_bom'] ) ) {
-			//		$new_input['pm'] = absint( $input['prod_bom'] );
-			//	}
+			$new_input['related_total'] = absint( $input['related_total'] );
+		}
 
-			//if ( isset( $input[ 'title' ] ) ) {
-			//	$new_input[ 'title' ] = sanitize_text_field( $input[ 'title' ] );
-			//}
-			return $new_input;*/
-		return $input;
+		if ( isset( $input['related_text'] ) ) {
+			$new_input['related_text'] = absint( $input['related_text'] );
+		}
+
+		if ( isset( $input['copy_product_data'] ) ) {
+			$new_input['copy_product_data'] = sanitize_text_field( $input['copy_product_data'] );
+		}
+
+		if ( isset( $input['prod_bom'] ) ) {
+			$new_input['prod_bom'] = sanitize_text_field( $input['prod_bom'] );
+		}
+
+		//if ( isset( $input[ 'title' ] ) ) {
+		//	$new_input[ 'title' ] = sanitize_text_field( $input[ 'title' ] );
+		//}
+
+
+		return $new_input;
 	}
 
 	/**
 	 * Get the settings option array and print one of its values
 	 */
-	public function settings_callback() {
+	public
+	function settings_callback() {
 
 
 		// Enqueue Media Library Use
@@ -375,7 +383,8 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 	/**
 	 * @return string
 	 */
-	protected function settings_fields() {
+	protected
+	function settings_fields() {
 
 		$wc_bom_settings = $this->wc_bom_settings ?>
 
@@ -398,8 +407,8 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 					<?php $key = $this->format_key( $label ); ?>
 					<?php $opt = $wc_bom_settings[ $key ]; ?>
                     <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
-                    <td><input type="checkbox" id="wc_bom_settings[<?php _e( $key ); ?>]"
-                               title="wc_bom_settings[<?php _e( $key ); ?>]"
+                    <td><input type="checkbox" id="<?php _e( $key ); ?>"
+                               title="<?php _e( $key ); ?>"
                                name="wc_bom_settings[<?php _e( $key ); ?>]"
                                value="1"<?php checked( 1, $wc_bom_settings[ $key ], true ); ?> /></td>
                 </tr>
@@ -408,8 +417,8 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 					$obj         = $wc_bom_settings[ $key ]; ?>
                     <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
                     <td><input type="number"
-                               title="wc_bom_settings[<?php _e( $key ); ?>]"
-                               id="wc_bom_settings[<?php _e( $key ); ?>]"
+                               title="<?php _e( $key ); ?>"
+                               id="<?php _e( $key ); ?>"
                                name="wc_bom_settings[<?php _e( $key ); ?>]"
                                value="<?php echo $wc_bom_settings[ $key ]; ?>"/>
                     </td>
@@ -419,8 +428,8 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 					$obj         = $wc_bom_settings[ $key ]; ?>
                     <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
                     <td><input type="text"
-                               title="wc_bom_settings[<?php _e( $key ); ?>]"
-                               id="wc_bom_settings[<?php _e( $key ); ?>]"
+                               title="<?php _e( $key ); ?>"
+                               id="<?php _e( $key ); ?>"
                                name="wc_bom_settings[<?php _e( $key ); ?>]"
                                value="<?php echo $wc_bom_settings[ $key ]; ?>"/>
                     </td>
@@ -453,7 +462,8 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 					$obj         = $wc_bom_settings[ $key ]; ?>
                     <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
                     <td>
-                        <select id="wc_bom_settings[<?php _e( $key ); ?>]" name="wc_bom_settings[<?php _e( $key ); ?>]"
+                        <select id="<?php _e( $key ); ?>"
+                                name="wc_bom_settings[<?php _e( $key ); ?>]"
                                 data-placeholder="Select Product" value="wc_bom_settings[<?php _e( $key ); ?>]"
                                 class="prod-select wc_bom_select chosen-select">
 							<?php _e( $this->build_select_options( $wc_bom_settings[ $key ] ), 'wc-related-products' ); ?>
@@ -494,10 +504,14 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 	 *
 	 * @return string
 	 */
-	protected function format_key( $text ) {
-		$str = str_replace( [ '-', ' ' ], '_', $text );
-		$lower = strtolower( $str );
+	protected
+	function format_key(
+		$text
+	) {
+		$str                  = str_replace( [ '-', ' ' ], '_', $text );
+		$lower                = strtolower( $str );
 		$this->option_names[] = $lower;
+
 		return $lower;
 	}
 
@@ -506,7 +520,10 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 	 *
 	 * @return string
 	 */
-	protected function build_select_options( $data ) {
+	protected
+	function build_select_options(
+		$data
+	) {
 		$option = '';
 
 

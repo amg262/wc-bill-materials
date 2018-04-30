@@ -111,7 +111,13 @@ jQuery(document).ready(function($) {
   $('.chosen-select').chosen();
 
   prod_bom = $('#prod_bom').val();
+  // var wc = array('wc_bom_settings');
 
+  /*var key = 'related_text';
+
+  $('#wc_bom_settings[key]').on('change', function(event, params) {
+    console.log(params);
+  });*/
   $('select.wc_bom_select.chosen-select').on('change', function(event, params) {
 
     console.log(event);
@@ -127,22 +133,54 @@ jQuery(document).ready(function($) {
 
   });
 
+  $('form#wc_bom_form').on('change', function() {
+
+    console.log(this);
+
+  });
   //$("#form_field").chosen().change( … );
   //$("#form_field").trigger("chosen:updated");
 
   $('#button_hit').click(function() {
 
     swal(prod_bom);
+
+    var b, c, d, e;
+
+    b = $('#related_text').val();
+    d = $('#copy_product_data').val();
+    // c = $('#related_total').val();
+    e = $('#prod_bom').val();
+
+    var a = '';
+    a = $('#related_total').val();
+
+    var arr = {
+      'related_total': a,
+      'related_text': b,
+      'copy_product_data': d,
+      'prod_bom': e,
+    };
+
+
+
     var data = {
       'url': ajax_object.ajax_url,
       'action': 'wco_ajax',
       'security': ajax_object.nonce,
       'data': ajax_object.ajax_data,
       'product': prod_bom,
+      'settings': ajax_object.settings,
+      'input':arr,
+
     };
     // console.log($('#prod_bom'));
 
     console.log(data);
+
+
+
+    console.log(a);
 
     sweetAlert({
           title: 'Export Product\'s BOM? ' + prod_bom,
