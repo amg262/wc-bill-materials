@@ -257,14 +257,74 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 
 		$p = get_post( $product );
 
-		$po = get_post_meta( $p->ID );
+		$parr_arr = [];
+		$ass_arr  = [];
+		$asss_arr = [];
+		$par_arr  = [];
+		$po       = get_post_meta( $p->ID );
 		if ( have_rows( 'product_assembly', $p->ID ) ) {
 
 			$i = 0;
 			while ( have_rows( 'product_assembly', $p->ID ) ) : the_row();
 				$i ++;
+
+				$ass = get_sub_field( 'assembly' );
+				$qty = get_sub_field( 'qty' );
+
+				//$ark[] = ['']
+				$pos = get_post( $ass );
+
+				if ( $pos->post_type === 'assembly' ) {
+					if ( have_rows( 'assembly_items', $pos->ID ) ) {
+
+
+						while ( have_rows( 'assembly_items', $pos->ID ) ) : the_row();
+							$ass2 = get_sub_field( 'item' );
+							$qty2 = get_sub_field( 'qty' );
+
+							$asss      = get_post( $ass2 );
+							$ass_arr[] = [
+								'ID'      => $pos->ID,
+								'assemby' => $ass2,
+								'type'    => $asss->post_type,
+								'qty'     => $qty2,
+							];
+
+							if ( $asss->post_type === 'part' ) {
+								$par_arr[] = $asss->ID;
+							} elseif ( $asss->post_type === 'assembly' ) {
+								while ( have_rows( 'assembly_items', $asss->ID ) ) : the_row();
+									$asss2 = get_sub_field( 'item' );
+									$qtyy2 = get_sub_field( 'qty' );
+
+									$asss3      = get_post( $asss2 );
+									$asss_arr[] = [
+										'ID'      => $asss->ID,
+										'assemby' => $asss2,
+										'type'    => $asss3->post_type,
+										'qty'     => $qtyy2,
+									];
+
+									if ( $asss3->post_type === 'part' ) {
+										$parr_arr[] = $asss3->ID;
+									} elseif ( $asss3->post_type === 'assembly' ) {
+                                        echo 'shit';
+									}
+
+								endwhile;
+							}
+
+						endwhile;
+
+					}
+				}
+
+				echo $ass . '<br>' . $qty;
+				//get_sub_field('assembl')
 			endwhile;
 		}
+
+
 		$arg = [];
 		$set = $_POST['settings'];
 		$in  = $_POST['input'];
@@ -273,13 +333,20 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 		update_option( 'wc_bom_settings', $in );
 
 		echo $in;
+		echo json_encode($parr_arr);
+		echo '<br><hr><br>';
+		echo json_encode($asss_arr);
+		echo '<br><hr><br>';
+		echo json_encode( $ass_arr );
+		echo '<br><hr><br>';
+		echo json_encode( $par_arr );
+		//echo json_encode( $par_arr );
 		//var_dump( get_option( 'wc_bom_settings' ) );
-		echo json_decode( $set );
+		//echo json_decode( $set );
 
 		//echo json_encode( get_option( 'wc_bom_settings' ) );
-		echo 'ZIP - ' . $i . ' <br>';
-		echo json_encode( $po );
-
+		//echo 'ZIP - ' . $i . ' <br>';
+		//
 
 		wp_die( 'Ajax finished.' );
 	}
@@ -384,10 +451,12 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 	/**
 	 * @return string
 	 */
-	protected
-	function settings_fields() {
+	protected function settings_fields() {
 
-		$wc_bom_settings = $this->wc_bom_settings ?>
+		$wc_bom_settings = $this->wc_bom_settings;
+
+		var_dump( $wc_bom_settings );
+		?>
 
         <div id="wcrp-related">
             <table class="form-table">
@@ -483,8 +552,6 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 
                 <tr>
                     <th>
-                        <img style="display:none;" src="<?php echo plugins_url( 'assets/images/ajax-loader.gif', WCB ) ?>"
-                             id="wcb_akax" class="wcb_ajax"/>
                     </th>
                     <td>
                         <span class="button primary" id="button_hit" name="button_hit">Generate</span>
