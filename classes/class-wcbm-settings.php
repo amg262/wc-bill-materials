@@ -33,7 +33,9 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 	 * @var array
 	 */
 	protected $wcrp_data = [];
-	private $option_names = [];
+	private $option_keys = [];
+
+	private $prefix = 'wcb_';
 
 
 	/**
@@ -44,6 +46,9 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 		$this->init();
 	}
 
+	protected function pre_init() {
+
+    }
 	/**
 	 *
 	 */
@@ -84,6 +89,34 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 			[ $this, 'settings_page' ]//,
 		);
 
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getOptionKeys() {
+		return $this->option_keys;
+	}
+
+	/**
+	 * @param array $option_keys
+	 */
+	public function setOptionKeys( $option_keys ) {
+		$this->option_keys = $option_keys;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getPrefix() {
+		return $this->prefix;
+	}
+
+	/**
+	 * @param string $prefix
+	 */
+	public function setPrefix( $prefix ) {
+		$this->prefix = $prefix;
 	}
 
 	/**
@@ -180,203 +213,6 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 
 		return $this->wc_bom_settings;
 
-	}
-
-	/**
-	 *
-	 */
-	public function wco_admin() {
-
-
-		$ajax_data = $this->get_data();
-
-		$settings = $this->wc_bom_settings;
-		$opts     = $this->wc_bom_settings;
-		$icon     = plugins_url( 'assets/images/ajax-loader.gif', WCB );
-		$p        = $opts['copy_product_data'];
-
-
-		$ajax_object = [
-			'ajax_url'  => admin_url( 'admin-ajax.php' ),
-			'nonce'     => wp_create_nonce( 'ajax_nonce' ),
-			'product'   => $p,
-			'action'    => [ $this, 'wco_ajax' ], //'options'  => 'wc_bom_option[opt]',
-			'ajax_data' => $p,
-			'settings'  => json_encode( $this->wc_bom_settings() ),
-			'icon'      => $icon,
-		];
-		wp_localize_script( 'bom_adm_js', 'ajax_object', $ajax_object );
-	}
-
-	/**
-	 * @return array
-	 */
-	public function get_data() {
-
-		$args = [
-			'post_type'      => 'product',
-			'post_status'    => 'publish',
-			'posts_per_page' => - 1,
-			'orderby'        => 'title',
-			'order'          => 'ASC',
-
-		];
-
-		$out   = [];
-		$posts = get_posts( $args );
-
-
-		foreach ( $posts as $p ) {
-			$out[] = [ 'id' => $p->ID, 'text' => $p->post_title ];
-		}
-		$json = json_encode( $out );
-
-		return $out;
-	}
-
-	/**
-	 *
-	 */
-	public function wco_ajax() {
-
-		//global $wpdb;
-		check_ajax_referer( 'ajax_nonce', 'security' );
-		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
-		}
-
-		$product = (int) $_POST['product'];
-
-
-		$meta = get_post_meta( $product, '_sku' );
-
-
-		//include_once __DIR__.'/class-wcbm-bom.php';
-
-		//$a = new WC_Bom_Builder();
-		//$a->dothis($product);
-
-		$p = get_post( $product );
-		$parrr_arr = [];
-		$ass4_arr  = [];
-		$asss5_arr = [];
-		$parr_arr = [];
-		$ass_arr  = [];
-		$asss_arr = [];
-		$par_arr  = [];
-		$po       = get_post_meta( $p->ID );
-		if ( have_rows( 'product_assembly', $p->ID ) ) {
-
-			$i = 0;
-			while ( have_rows( 'product_assembly', $p->ID ) ) : the_row();
-				$i ++;
-
-				$ass = get_sub_field( 'assembly' );
-				$qty = get_sub_field( 'qty' );
-
-				//$ark[] = ['']
-				$pos = get_post( $ass );
-
-				if ( $pos->post_type === 'assembly' ) {
-					if ( have_rows( 'assembly_items', $pos->ID ) ) {
-
-
-						while ( have_rows( 'assembly_items', $pos->ID ) ) : the_row();
-							$ass2 = get_sub_field( 'item' );
-							$qty2 = get_sub_field( 'qty' );
-
-							$asss      = get_post( $ass2 );
-							$ass_arr[] = [
-								'ID'      => $pos->ID,
-								'assemby' => $ass2,
-								'type'    => $asss->post_type,
-								'qty'     => $qty2,
-							];
-
-							if ( $asss->post_type === 'part' ) {
-								$par_arr[] = $asss->ID;
-							} elseif ( $asss->post_type === 'assembly' ) {
-								while ( have_rows( 'assembly_items', $asss->ID ) ) : the_row();
-									$asss2 = get_sub_field( 'item' );
-									$qtyy2 = get_sub_field( 'qty' );
-
-									$asss3      = get_post( $asss2 );
-									$asss_arr[] = [
-										'ID'      => $asss->ID,
-										'assemby' => $asss2,
-										'type'    => $asss3->post_type,
-										'qty'     => $qtyy2,
-									];
-
-									if ( $asss3->post_type === 'part' ) {
-										$parr_arr[] = $asss3->ID;
-									} elseif ( $asss3->post_type === 'assembly' ) {
-                                        echo 'shit';
-
-										/*while ( have_rows( 'assembly_items', $asss3->ID ) ) : the_row();
-											$asss32 = get_sub_field( 'item' );
-											$qtyy32 = get_sub_field( 'qty' );
-
-											$asss33      = get_post( $asss2 );
-											$asss_arr[] = [
-												'ID'      => $asss3->ID,
-												'assemby' => $asss32,
-												'type'    => $asss33->post_type,
-												'qty'     => $qtyy32,
-											];
-
-											if ( $asss33->post_type === 'part' ) {
-												$parrr_arr[] = $asss33->ID;
-											} elseif ( $asss33->post_type === 'assembly' ) {
-												echo 'shit';
-
-
-
-											}
-
-										endwhile;*/
-
-									}
-
-								endwhile;
-							}
-
-						endwhile;
-
-					}
-				}
-
-				echo $ass . '<br>' . $qty;
-				//get_sub_field('assembl')
-			endwhile;
-		}
-
-
-		$arg = [];
-		$set = $_POST['settings'];
-		$in  = $_POST['input'];
-
-
-		update_option( 'wc_bom_settings', $in );
-
-		echo $in;
-		echo json_encode($parrr_arr);
-		echo '<br><hr><br>';
-		echo json_encode($parr_arr);
-		echo '<br><hr><br>';
-		echo json_encode($asss_arr);
-		echo '<br><hr><br>';
-		echo json_encode( $ass_arr );
-		echo '<br><hr><br>';
-		echo json_encode( $par_arr );
-		//echo json_encode( $par_arr );
-		//var_dump( get_option( 'wc_bom_settings' ) );
-		//echo json_decode( $set );
-
-		//echo json_encode( get_option( 'wc_bom_settings' ) );
-		//echo 'ZIP - ' . $i . ' <br>';
-		//
-
-		wp_die( 'Ajax finished.' );
 	}
 
 	/**
@@ -499,6 +335,88 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
                                id="wc_bom_settings[<?php _e( $key ); ?>]"
                                name="wc_bom_settings[<?php _e( $key ); ?>]"
                                value="<?php echo $wc_bom_settings[ $key ]; */ ?>
+                <tr>
+					<?php $label = 'Enable Inventory Posts'; ?>
+					<?php $key = $this->format_key( $label ); ?>
+					<?php $opt = $wc_bom_settings[ $key ]; ?>
+                    <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
+                    <td><input type="checkbox" id="<?php _e( $key ); ?>"
+                               title="<?php _e( $key ); ?>"
+                               name="wc_bom_settings[<?php _e( $key ); ?>]"
+                               value="1"<?php checked( 1, $wc_bom_settings[ $key ], true ); ?> /></td>
+                </tr>
+
+                <tr>
+					<?php $label = 'Enable Vendor Taxonomy'; ?>
+					<?php $key = $this->format_key( $label ); ?>
+					<?php $opt = $wc_bom_settings[ $key ]; ?>
+                    <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
+                    <td><input type="checkbox" id="<?php _e( $key ); ?>"
+                               title="<?php _e( $key ); ?>"
+                               name="wc_bom_settings[<?php _e( $key ); ?>]"
+                               value="1"<?php checked( 1, $wc_bom_settings[ $key ], true ); ?> /></td>
+                </tr>
+
+                <tr>
+					<?php $label = 'Enable BOM Posts'; ?>
+					<?php $key = $this->format_key( $label ); ?>
+					<?php $opt = $wc_bom_settings[ $key ]; ?>
+                    <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
+                    <td><input type="checkbox" id="<?php _e( $key ); ?>"
+                               title="<?php _e( $key ); ?>"
+                               name="wc_bom_settings[<?php _e( $key ); ?>]"
+                               value="1"<?php checked( 1, $wc_bom_settings[ $key ], true ); ?> /></td>
+                </tr>
+
+                <tr>
+					<?php $label = 'Enable Import Export'; ?>
+					<?php $key = $this->format_key( $label ); ?>
+					<?php $opt = $wc_bom_settings[ $key ]; ?>
+                    <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
+                    <td><input type="checkbox" id="<?php _e( $key ); ?>"
+                               title="<?php _e( $key ); ?>"
+                               name="wc_bom_settings[<?php _e( $key ); ?>]"
+                               value="1"<?php checked( 1, $wc_bom_settings[ $key ], true ); ?> /></td>
+                </tr>
+
+                <tr><?php $label = 'Related Total';
+					$key         = $this->format_key( $label );
+					$obj         = $wc_bom_settings[ $key ]; ?>
+                    <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
+                    <td><input type="number"
+                               title="<?php _e( $key ); ?>"
+                               id="<?php _e( $key ); ?>"
+                               name="wc_bom_settings[<?php _e( $key ); ?>]"
+                               value="<?php echo $wc_bom_settings[ $key ]; ?>"/>
+                    </td>
+                </tr>
+                <tr><?php $label = 'Related Text';
+					$key         = $this->format_key( $label );
+					$obj         = $wc_bom_settings[ $key ]; ?>
+                    <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
+                    <td><input type="text"
+                               title="<?php _e( $key ); ?>"
+                               id="<?php _e( $key ); ?>"
+                               name="wc_bom_settings[<?php _e( $key ); ?>]"
+                               value="<?php echo $wc_bom_settings[ $key ]; ?>"/>
+                    </td>
+                </tr>
+
+                <tr><?php $label = 'Install DB';
+					$key         = $this->format_key( $label );
+					$obj         = $wc_bom_settings[ $key ]; ?>
+                    <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
+                    <td>
+                        <span class="button primary" id="install_db" name="install_db">Install</span>
+                    </td>
+                    <th>
+                        <input type="submit" class="button button-primary"
+                               id="<?php _e( $key ); ?>"
+                               name="<?php _e( $key ); ?>"
+                               value="Install DB"/>
+                    </th>
+                </tr>
+
 
                 <tr>
 					<?php $label = 'Show Related'; ?>
@@ -601,10 +519,7 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 	 *
 	 * @return string
 	 */
-	protected
-	function format_key(
-		$text
-	) {
+	protected function format_key( $text ) {
 		$str                  = str_replace( [ '-', ' ' ], '_', $text );
 		$lower                = strtolower( $str );
 		$this->option_names[] = $lower;
@@ -617,10 +532,7 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 	 *
 	 * @return string
 	 */
-	protected
-	function build_select_options(
-		$data
-	) {
+	protected function build_select_options( $data ) {
 		$option = '';
 
 
@@ -638,6 +550,203 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 		}
 
 		return $option;
+	}
+
+	/**
+	 *
+	 */
+	protected function wco_admin() {
+
+
+		$ajax_data = $this->get_data();
+
+		$settings = $this->wc_bom_settings;
+		$opts     = $this->wc_bom_settings;
+		$icon     = plugins_url( 'assets/images/ajax-loader.gif', WCB );
+		$p        = $opts['copy_product_data'];
+
+
+		$ajax_object = [
+			'ajax_url'  => admin_url( 'admin-ajax.php' ),
+			'nonce'     => wp_create_nonce( 'ajax_nonce' ),
+			'product'   => $p,
+			'action'    => [ $this, 'wco_ajax' ], //'options'  => 'wc_bom_option[opt]',
+			'ajax_data' => $p,
+			'settings'  => json_encode( $this->wc_bom_settings() ),
+			'icon'      => $icon,
+		];
+		wp_localize_script( 'bom_adm_js', 'ajax_object', $ajax_object );
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function get_data() {
+
+		$args = [
+			'post_type'      => 'product',
+			'post_status'    => 'publish',
+			'posts_per_page' => - 1,
+			'orderby'        => 'title',
+			'order'          => 'ASC',
+
+		];
+
+		$out   = [];
+		$posts = get_posts( $args );
+
+
+		foreach ( $posts as $p ) {
+			$out[] = [ 'id' => $p->ID, 'text' => $p->post_title ];
+		}
+		$json = json_encode( $out );
+
+		return $out;
+	}
+
+	/**
+	 *
+	 */
+	protected function wco_ajax() {
+
+		//global $wpdb;
+		check_ajax_referer( 'ajax_nonce', 'security' );
+		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
+		}
+
+		$product = (int) $_POST['product'];
+
+
+		$meta = get_post_meta( $product, '_sku' );
+
+
+		//include_once __DIR__.'/class-wcbm-bom.php';
+
+		//$a = new WC_Bom_Builder();
+		//$a->dothis($product);
+
+		$p         = get_post( $product );
+		$parrr_arr = [];
+		$ass4_arr  = [];
+		$asss5_arr = [];
+		$parr_arr  = [];
+		$ass_arr   = [];
+		$asss_arr  = [];
+		$par_arr   = [];
+		$po        = get_post_meta( $p->ID );
+		if ( have_rows( 'product_assembly', $p->ID ) ) {
+
+			$i = 0;
+			while ( have_rows( 'product_assembly', $p->ID ) ) : the_row();
+				$i ++;
+
+				$ass = get_sub_field( 'assembly' );
+				$qty = get_sub_field( 'qty' );
+
+				//$ark[] = ['']
+				$pos = get_post( $ass );
+
+				if ( $pos->post_type === 'assembly' ) {
+					if ( have_rows( 'assembly_items', $pos->ID ) ) {
+
+
+						while ( have_rows( 'assembly_items', $pos->ID ) ) : the_row();
+							$ass2 = get_sub_field( 'item' );
+							$qty2 = get_sub_field( 'qty' );
+
+							$asss      = get_post( $ass2 );
+							$ass_arr[] = [
+								'ID'      => $pos->ID,
+								'assemby' => $ass2,
+								'type'    => $asss->post_type,
+								'qty'     => $qty2,
+							];
+
+							if ( $asss->post_type === 'part' ) {
+								$par_arr[] = $asss->ID;
+							} elseif ( $asss->post_type === 'assembly' ) {
+								while ( have_rows( 'assembly_items', $asss->ID ) ) : the_row();
+									$asss2 = get_sub_field( 'item' );
+									$qtyy2 = get_sub_field( 'qty' );
+
+									$asss3      = get_post( $asss2 );
+									$asss_arr[] = [
+										'ID'      => $asss->ID,
+										'assemby' => $asss2,
+										'type'    => $asss3->post_type,
+										'qty'     => $qtyy2,
+									];
+
+									if ( $asss3->post_type === 'part' ) {
+										$parr_arr[] = $asss3->ID;
+									} elseif ( $asss3->post_type === 'assembly' ) {
+										echo 'shit';
+
+										/*while ( have_rows( 'assembly_items', $asss3->ID ) ) : the_row();
+											$asss32 = get_sub_field( 'item' );
+											$qtyy32 = get_sub_field( 'qty' );
+
+											$asss33      = get_post( $asss2 );
+											$asss_arr[] = [
+												'ID'      => $asss3->ID,
+												'assemby' => $asss32,
+												'type'    => $asss33->post_type,
+												'qty'     => $qtyy32,
+											];
+
+											if ( $asss33->post_type === 'part' ) {
+												$parrr_arr[] = $asss33->ID;
+											} elseif ( $asss33->post_type === 'assembly' ) {
+												echo 'shit';
+
+
+
+											}
+
+										endwhile;*/
+
+									}
+
+								endwhile;
+							}
+
+						endwhile;
+
+					}
+				}
+
+				echo $ass . '<br>' . $qty;
+				//get_sub_field('assembl')
+			endwhile;
+		}
+
+
+		$arg = [];
+		$set = $_POST['settings'];
+		$in  = $_POST['input'];
+
+
+		update_option( 'wc_bom_settings', $in );
+
+		echo $in;
+		echo json_encode( $parrr_arr );
+		echo '<br><hr><br>';
+		echo json_encode( $parr_arr );
+		echo '<br><hr><br>';
+		echo json_encode( $asss_arr );
+		echo '<br><hr><br>';
+		echo json_encode( $ass_arr );
+		echo '<br><hr><br>';
+		echo json_encode( $par_arr );
+		//echo json_encode( $par_arr );
+		//var_dump( get_option( 'wc_bom_settings' ) );
+		//echo json_decode( $set );
+
+		//echo json_encode( get_option( 'wc_bom_settings' ) );
+		//echo 'ZIP - ' . $i . ' <br>';
+		//
+
+		wp_die( 'Ajax finished.' );
 	}
 
 }
