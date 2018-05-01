@@ -256,7 +256,9 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 		//$a->dothis($product);
 
 		$p = get_post( $product );
-
+		$parrr_arr = [];
+		$ass4_arr  = [];
+		$asss5_arr = [];
 		$parr_arr = [];
 		$ass_arr  = [];
 		$asss_arr = [];
@@ -309,6 +311,30 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 										$parr_arr[] = $asss3->ID;
 									} elseif ( $asss3->post_type === 'assembly' ) {
                                         echo 'shit';
+
+										/*while ( have_rows( 'assembly_items', $asss3->ID ) ) : the_row();
+											$asss32 = get_sub_field( 'item' );
+											$qtyy32 = get_sub_field( 'qty' );
+
+											$asss33      = get_post( $asss2 );
+											$asss_arr[] = [
+												'ID'      => $asss3->ID,
+												'assemby' => $asss32,
+												'type'    => $asss33->post_type,
+												'qty'     => $qtyy32,
+											];
+
+											if ( $asss33->post_type === 'part' ) {
+												$parrr_arr[] = $asss33->ID;
+											} elseif ( $asss33->post_type === 'assembly' ) {
+												echo 'shit';
+
+
+
+											}
+
+										endwhile;*/
+
 									}
 
 								endwhile;
@@ -333,6 +359,8 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 		update_option( 'wc_bom_settings', $in );
 
 		echo $in;
+		echo json_encode($parrr_arr);
+		echo '<br><hr><br>';
 		echo json_encode($parr_arr);
 		echo '<br><hr><br>';
 		echo json_encode($asss_arr);
