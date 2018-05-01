@@ -9,11 +9,11 @@
 class WC_Bom_Data {
 
 
-	public $wc_bom_settings = [];
 	/**
 	 * @var null
 	 */
 	protected static $instance;
+	public $wc_bom_settings = [];
 	/**
 	 * @var
 	 */
@@ -55,12 +55,6 @@ class WC_Bom_Data {
 	}
 
 
-	public function wc_bom_settings() {
-
-		$settings = get_option('wc_bom_settings');
-
-	}
-
 	/**
 	 *
 	 */
@@ -88,8 +82,9 @@ class WC_Bom_Data {
 		global $wc_bom_settings;
 
 		$key             = 'db_version';
-		$wc_bom_settings = get_option( 'wc_bom_db' );
+		$wc_bom_settings = get_option( 'wcb_db' );
 
+		var_dump( $wc_bom_settings );
 		if ( $wc_bom_settings[ $key ] !== WC_BOM_DB_VERSION ) {
 			$table_name = $wpdb->prefix . 'wc_bill_materials';
 
@@ -115,10 +110,10 @@ class WC_Bom_Data {
 
 			dbDelta( $sql );
 
-			if ( get_option( 'wc_bom_db' ) === null ) {
-				add_option( 'wc_bom_db', absint(WC_BOM_DB_VERSION) );
+			if ( get_option( 'wcb_db' ) === null ) {
+				add_option( 'wcb_db', absint( WC_BOM_DB_VERSION ) );
 			} else {
-				update_option( 'wc_bom_db', absint(WC_BOM_DB_VERSION) );
+				update_option( 'wcb_db', absint( WC_BOM_DB_VERSION ) );
 			}
 
 		}

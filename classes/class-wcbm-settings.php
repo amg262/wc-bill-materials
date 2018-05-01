@@ -24,9 +24,16 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 	 */
 	protected static $instance;
 
+	protected $options = [
+		'enable_inventory_posts',
+		'enable_vendor_taxonomy',
+		'enable_bom_posts',
+		'related_text',
+		'copy_product_data',
+		'option_keys',
+	];
 
 	private $option_keys = [];
-
 
 	/**
 	 * WC_Bom constructor.
@@ -274,10 +281,10 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
                 <tbody>
 
                 <tr>
-					<?php $label         = 'Enable Inventory Posts';
-					$key                 = $this->format_key( $label );
-					$id                  = WCB_PREFIX . $key;
-					$this->option_keys[] = $key; ?>
+					<?php $label = 'Enable Inventory Posts';
+					$key         = $this->format_key( $label );
+					$id          = WCB_PREFIX . $key;
+					?>
                     <th scope="row"><label for="<?php _e( $id ); ?>"><?php _e( $label ); ?></label></th>
                     <td><input type="checkbox" id="<?php _e( $id ); ?>"
                                title="<?php _e( $id ); ?>"
@@ -286,10 +293,10 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
                 </tr>
 
                 <tr>
-					<?php $label         = 'Enable Vendor Taxonomy';
-					$key                 = $this->format_key( $label );
-					$id                  = WCB_PREFIX . $key;
-					$this->option_keys[] = $key; ?>
+					<?php $label = 'Enable Vendor Taxonomy';
+					$key         = $this->format_key( $label );
+					$id          = WCB_PREFIX . $key;
+					?>
                     <th scope="row"><label for="<?php _e( $id ); ?>"><?php _e( $label ); ?></label></th>
                     <td><input type="checkbox" id="<?php _e( $id ); ?>"
                                title="<?php _e( $id ); ?>"
@@ -298,10 +305,10 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
                 </tr>
 
                 <tr>
-					<?php $label         = 'Enable BOM Posts';
-					$key                 = $this->format_key( $label );
-					$id                  = WCB_PREFIX . $key;
-					$this->option_keys[] = $key; ?>
+					<?php $label = 'Enable BOM Posts';
+					$key         = $this->format_key( $label );
+					$id          = WCB_PREFIX . $key;
+					?>
                     <th scope="row"><label for="<?php _e( $id ); ?>"><?php _e( $label ); ?></label></th>
                     <td><input type="checkbox" id="<?php _e( $id ); ?>"
                                title="<?php _e( $id ); ?>"
@@ -310,10 +317,10 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
                 </tr>
 
 
-                <tr><?php $label         = 'Related Text';
-					$key                 = $this->format_key( $label );
-					$id                  = WCB_PREFIX . $key;
-					$this->option_keys[] = $key; ?>
+                <tr><?php $label = 'Related Text';
+					$key         = $this->format_key( $label );
+					$id          = WCB_PREFIX . $key;
+					?>
                     <th scope="row"><label for="<?php _e( $id ); ?>"><?php _e( $label ); ?></label></th>
                     <td><input type="text"
                                title="<?php _e( $id ); ?>"
@@ -330,10 +337,10 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
         <div id="wcrp-settings">
             <table class="form-table">
                 <tbody>
-                <tr><?php $label         = 'Copy Product Data';
-					$key                 = $this->format_key( $label );
-					$id                  = WCB_PREFIX . $key;
-					$this->option_keys[] = $key; ?>
+                <tr><?php $label = 'Copy Product Data';
+					$key         = $this->format_key( $label );
+					$id          = WCB_PREFIX . $key;
+					?>
                     <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
                     <td>
                         <select id="<?php _e( $key ); ?>"
@@ -349,19 +356,6 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
                                name="prod_bom"
                                value="<?php echo $wcb_options[ $key ]; ?>"/>
 
-						<?php $label         = 'Option Keys';
-						$key                 = $this->format_key( $label );
-						$id                  = WCB_PREFIX . $key;
-						$this->option_keys[] = $key;
-
-						$wcb_options[ $key ] = json_encode( $this->option_keys );
-						?>
-                        <input type="hidden"
-                               id="prod_bom"
-                               name="wcb_options[<?php _e( $key ); ?>]"
-                               value="'<?php echo implode( ",", $this->option_keys ); ?>'"/>
-                    </th>
-                </tr>
 
                 <tr>
                     <th>
@@ -377,7 +371,7 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
             </table>
         </div>
 
-		<?php var_dump( $this->option_keys );
+		<?php
 
 		return 'hi';
 	}
@@ -467,7 +461,6 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 			'action'    => [ $this, 'wco_ajax' ], //'options'  => 'wc_bom_option[opt]',
 			'ajax_data' => $p,
 			'settings'  => json_encode( $wcb_options ),
-			'keys'      => json_encode( $this->option_keys ),
 		];
 		wp_localize_script( 'bom_adm_js', 'ajax_object', $ajax_object );
 	}

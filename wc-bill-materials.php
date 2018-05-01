@@ -19,7 +19,7 @@ const WC_BOM_SETTINGS   = 'wc_bom_settings';
  */
 const WC_BOM_OPTIONS    = 'wc_bom_options';
 
-const WCB_PREFIX = 'wcb_';
+const WCB_PREFIX = '';
 
 const WCB_OPTIONS = 'wcb_options';
 
@@ -51,10 +51,11 @@ class WC_Bill_Materials {
 
 		include_once __DIR__ . '/classes/class-wcbm-settings.php';
 		include_once __DIR__ . '/classes/class-wcbm-post.php';
-		//include_once __DIR__ . '/classes/class-wcbm-db.php';
+		include_once __DIR__ . '/classes/class-wcbm-data.php';
 		//include_once __DIR__.'/classes/functions.php';
 		$set  = WC_RP_Settings::getInstance();
 		$post = WC_RP_Post::getInstance();
+		$db = WC_Bom_Data::getInstance();
 		//$db   = WC_Bom_Data::getInstance();
 
 		add_action( 'init', [ $this, 'load_assets' ] );

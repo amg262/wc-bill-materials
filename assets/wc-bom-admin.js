@@ -74,7 +74,6 @@ jQuery(document).ready(function($) {
       'product': prod_bom,
       'settings': ajax_object.settings,
       'input': arr,
-      'keys': ajax_object.keys,
 
     };
     // console.log($('#prod_bom'));
