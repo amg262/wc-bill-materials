@@ -32,6 +32,9 @@ class WC_RP_Post {
 		add_action( 'init', [ $this, 'register_assembly' ] );
 		add_action( 'init', [ $this, 'register_part_cat' ] );
 		add_action( 'init', [ $this, 'register_part_tags' ] );
+		add_action( 'init', [ $this, 'register_inventory' ] );
+
+\
 		add_action( 'admin_init', [ $this, 'get_parts' ] );
 	}
 
@@ -191,5 +194,43 @@ class WC_RP_Post {
 		];
 		register_taxonomy( 'part-tags', [ 'part', 'assembly' ], $args );
 	}
+
+	public function register_inventory() {
+
+		/**
+		 * Post Type: Inventory Items.
+		 */
+
+		$labels = array(
+			"name" => __( "Inventory", "wasserman-store" ),
+			"singular_name" => __( "Inventory Item", "wasserman-store" ),
+		);
+
+		$args = array(
+			"label" => __( "Inventory Items", "wasserman-store" ),
+			"labels" => $labels,
+			"description" => "",
+			"public" => true,
+			"publicly_queryable" => true,
+			"show_ui" => true,
+			"show_in_rest" => true,
+			"rest_base" => "",
+			"has_archive" => true,
+			"show_in_menu" => true,
+			"show_in_nav_menus" => true,
+			"exclude_from_search" => false,
+			"capability_type" => "part",
+			"map_meta_cap" => true,
+			"hierarchical" => true,
+			"rewrite" => array( "slug" => "inventory", "with_front" => true ),
+			"query_var" => true,
+			"supports" => array( "title", "editor", "thumbnail" ),
+			"taxonomies" => array( "part-category", "part-tags" ),
+		);
+
+		register_post_type( "inventory", $args );
+	}
+
+
 
 }
