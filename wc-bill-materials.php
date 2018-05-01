@@ -486,3 +486,4 @@ class WC_Bill_Materials {
 }
 
 $wcrp                   = WC_Bill_Materials::getInstance();
+
