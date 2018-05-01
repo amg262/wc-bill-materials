@@ -12,18 +12,19 @@ Author URI:  http://andrewgunn.net
  */
 
 const WC_BOM_DB_VERSION = 1;
-const WCB = __FILE__;
+const WCB               = __FILE__;
 const WC_BOM_SETTINGS   = 'wc_bom_settings';
 /**
  *
  */
-const WC_BOM_OPTIONS    = 'wc_bom_options';
+const WC_BOM_OPTIONS = 'wc_bom_options';
 
 const WCB_PREFIX = '';
 
 const WCB_OPTIONS = 'wcb_options';
 
 global $wcb_options;
+
 /**
  * Class WC_Related_Products
  */
@@ -47,7 +48,7 @@ class WC_Bill_Materials {
 	 */
 	public function init() {
 		global $wcb_options;
-        $wcb_options = $this->wcb_options();
+		$wcb_options = $this->wcb_options();
 
 		include_once __DIR__ . '/classes/class-wcbm-settings.php';
 		include_once __DIR__ . '/classes/class-wcbm-post.php';
@@ -55,36 +56,12 @@ class WC_Bill_Materials {
 		//include_once __DIR__.'/classes/functions.php';
 		$set  = WC_RP_Settings::getInstance();
 		$post = WC_RP_Post::getInstance();
-		$db = WC_Bom_Data::getInstance();
+		$db   = WC_Bom_Data::getInstance();
 		//$db   = WC_Bom_Data::getInstance();
 
 		add_action( 'init', [ $this, 'load_assets' ] );
 		add_action( 'admin_init', [ $this, 'create_options' ] );
 		add_filter( 'plugin_action_links', [ $this, 'plugin_links' ], 10, 5 );
-
-	}
-
-	/**
-	 * @return null
-	 */
-	public static function getInstance() {
-
-		if ( static::$instance === null ) {
-			static::$instance = new static;
-		}
-
-		return static::$instance;
-	}
-
-
-	/**
-	 * @return mixed
-	 */
-	public function create_options() {
-
-		if ( ! get_option( WC_BOM_SETTINGS ) ) {
-			add_option( WC_BOM_SETTINGS, [ 'init' => 'true' ] );
-		}
 
 	}
 
@@ -99,6 +76,30 @@ class WC_Bill_Materials {
 
 		return $wcb_options;
 	}
+
+	/**
+	 * @return null
+	 */
+	public static function getInstance() {
+
+		if ( static::$instance === null ) {
+			static::$instance = new static;
+		}
+
+		return static::$instance;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function create_options() {
+
+		if ( ! get_option( WC_BOM_SETTINGS ) ) {
+			add_option( WC_BOM_SETTINGS, [ 'init' => 'true' ] );
+		}
+
+	}
+
 	/**
 	 * @param $actions
 	 * @param $plugin_file
@@ -151,5 +152,5 @@ class WC_Bill_Materials {
 	}
 }
 
-$wcrp                   = WC_Bill_Materials::getInstance();
+$wcrp = WC_Bill_Materials::getInstance();
 
