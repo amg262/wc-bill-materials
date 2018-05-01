@@ -16,16 +16,16 @@ const mkdirp = require('mkdirp');
 
 var paths = {
   assets: 'assets/',
-  home: 'wc-related-products.php',
-  lib_js: 'assets/scripts/',
-  lib_css: 'assets/styles/',
-  lib_img: 'assets/images/*',
+  home: 'wc-bill-materials.php',
+  js: 'assets/',
+  css: 'assets/',
+  img: 'assets/images/',
   dist: 'dist/',
   logs: 'logs/',
   data: 'assets/data/',
   archive: 'assets/archive/',
-  dist_js: 'dist/scripts/',
-  dist_css: 'dist/styles/',
+  dist_js: 'dist/',
+  dist_css: 'dist/',
   dist_img: 'dist/images/',
   includes: 'includes/',
   classes: 'classes/*.php',
@@ -35,18 +35,17 @@ var paths = {
 // A gulpfile is just another node program and you can use any package available on npm
 gulp.task('purge', function() {
   gulp.src(paths.dist_img + '*').pipe(clean());
-  gulp.src(paths.dist_js + '*').pipe(clean());
-  gulp.src(paths.dist_css + '*').pipe(clean());
-  gulp.src(paths.dist_img + '*').pipe(clean());
+  gulp.src(paths.dist + '*.css').pipe(clean());
+  gulp.src(paths.dist + '*.js').pipe(clean());
 });
 
 // Copy all static images
 gulp.task('imagemin', function() {
-  gulp.src(paths.lib_img).pipe(imagemin()).pipe(gulp.dest(paths.dist_img));
+  gulp.src(paths.img).pipe(imagemin()).pipe(gulp.dest(paths.dist_img));
 });
 
 gulp.task('cssnano', function() {
-  gulp.src(paths.lib_css + '*.css').
+  gulp.src(paths.css + '*.css').
       pipe(cssnano()).
       pipe(rename({suffix: '.min'})).
       pipe(gulp.dest(paths.dist_css));
@@ -63,7 +62,7 @@ gulp.task('scripts', function() {
  */
 gulp.task('uglify', function() {
 
-  gulp.src(paths.lib_js + '*.js').
+  gulp.src(paths.js + '*.js').
       pipe(uglify()).
       pipe(rename({suffix: '.min'})).
       pipe(gulp.dest(paths.dist_js));
@@ -99,8 +98,7 @@ gulp.task('watch', function() {
   gulp.watch(paths.includes).on('add', browserSync.reload);
 });
 
-gulp.task('default',
-    ['purge', 'imagemin', 'cssnano', 'uglify', 'serve', 'watch']);
-gulp.task('clean', ['purge', 'imagemin', 'cssnano', 'uglify']);
+gulp.task('default', ['purge', 'imagemin', 'cssnano', 'uglify', 'serve', 'watch']);
+gulp.task('clean', ['purge', 'imagemin', 'cssnano', 'uglify', 'zip']);
 gulp.task('live', ['serve', 'watch']);
 
