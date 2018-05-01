@@ -6,53 +6,40 @@
  *
  */
 
+global $wcb_options;
 
 if ( ! is_admin() ) {
 	//wp_die( 'You must be an admin to view this.' );
 }
 
-
 /**
- * Class WC_Bom_Settings
+ * Class wcb_options
  *
  * @package WooBom
  */
 class WC_RP_Settings {//implements WC_Abstract_Settings {
 
 	/**
-	 * @var array
-	 */
-	public $wc_bom_settings = [];
-
-	public $option_list = [];
-	/**
 	 * @var null
 	 */
 	protected static $instance;
-	/**
-	 * @var array
-	 */
-	protected $wcrp_data = [];
-	private $option_keys = [];
 
-	private $prefix = 'wcb_';
+
+	private $option_keys = [];
 
 
 	/**
 	 * WC_Bom constructor.
 	 */
-	private function __construct() {
+	public function __construct() {
 
 		$this->init();
 	}
 
-	protected function pre_init() {
-
-    }
 	/**
 	 *
 	 */
-	protected function init() {
+	public function init() {
 
 		add_action( 'admin_menu', [ $this, 'wc_bom_menu' ], 99 );
 		add_action( 'admin_init', [ $this, 'page_init' ] );
@@ -74,6 +61,7 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 		return static::$instance;
 	}
 
+
 	/**
 	 * /**
 	 * Add options page
@@ -91,33 +79,6 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getOptionKeys() {
-		return $this->option_keys;
-	}
-
-	/**
-	 * @param array $option_keys
-	 */
-	public function setOptionKeys( $option_keys ) {
-		$this->option_keys = $option_keys;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getPrefix() {
-		return $this->prefix;
-	}
-
-	/**
-	 * @param string $prefix
-	 */
-	public function setPrefix( $prefix ) {
-		$this->prefix = $prefix;
-	}
 
 	/**
 	 * Register and add settings
@@ -125,23 +86,24 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 	public function page_init() {
 
 		register_setting(
-			'wc_bom_settings_group', // Option group
-			'wc_bom_settings', // Option name
+			'wcb_options_group', // Option group
+			'wcb_options', // Option name
 			[ $this, 'sanitize' ] // Sanitize
 		);
 
+
 		add_settings_section(
-			'wc_bom_settings_section', // ID
+			'wcb_options_section', // ID
 			'', // Title
 			[ $this, 'settings_info' ], // Callback
-			'wc-bom-settings-admin' // Page
+			'wcb-options-admin' // Page
 		);
 
 		add_settings_section(
-			'wc_bom_setting', // ID
+			'wcb_option', // ID
 			'', // Title
 			[ $this, 'settings_callback' ], // Callback
-			'wc-bom-settings-admin' // Page
+			'wcb-options-admin' // Page
 		);
 
 	}
@@ -161,11 +123,7 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 	 */
 	public function settings_page() {
 
-		$this->wc_bom_settings();
-
-
-		//var_dump( $_POST );
-		$wc_bom_settings = get_option( WC_BOM_SETTINGS );
+		global $wcb_options;
 
 		$active_tab = ( isset( $_GET['tab'] ) ) ? $_GET['tab'] : 'all';
 
@@ -189,13 +147,13 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 
                         <div id="post-body" class="metabox-holder columns-2">
 							<?php if ( $active_tab === 'all' || $active_tab === null ) {
-								settings_fields( 'wc_bom_settings_group' );
-								do_settings_sections( 'wc-bom-settings-admin' );
+								settings_fields( 'wcb_options_group' );
+								do_settings_sections( 'wcb-options-admin' );
 								submit_button( 'Save Settings' );
 
 							} elseif ( $active_tab === 'settings' ) {
-								settings_fields( 'wc_bom_settings_group' );
-								do_settings_sections( 'wc-bom-settings-admin' );
+								settings_fields( 'wcb_options_group' );
+								do_settings_sections( 'wcb-options-admin' );
 								submit_button( 'Save Settings' );
 							}
 							?>
@@ -207,13 +165,6 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 		<?php
 	}
 
-	protected function wc_bom_settings() {
-
-		$this->wc_bom_settings = get_option( 'wc_bom_settings' );
-
-		return $this->wc_bom_settings;
-
-	}
 
 	/**
 	 * Sanitize each setting field as needed
@@ -224,7 +175,8 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 	 */
 	public function sanitize( $input ) {
 
-		$new_input = [];
+
+		/*$new_input = [];
 		if ( isset( $input['show_related'] ) ) {
 			$new_input['show_related'] = absint( $input['show_related'] );
 		}
@@ -251,20 +203,17 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 		//}
 
 
-		return $new_input;
+		return $new_input;*/
+		return $input;
 	}
 
 	/**
 	 * Get the settings option array and print one of its values
 	 */
-	public
-	function settings_callback() {
-
-
+	public function settings_callback() {
+		global $wcb_options;
 		// Enqueue Media Library Use
-		wp_enqueue_media();
-		var_dump( $this->wc_bom_settings );
-		?>
+		wp_enqueue_media(); ?>
         <div id="postbox-container-1" class="postbox-container">
 
             <div id="normal-sortables" class="meta-box-sortables">
@@ -317,153 +266,61 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 	 */
 	protected function settings_fields() {
 
-		$wc_bom_settings = $this->wc_bom_settings;
-
-		var_dump( $wc_bom_settings );
-		?>
+		global $wcb_options;
+		var_dump( $wcb_options ); ?>
 
         <div id="wcrp-related">
             <table class="form-table">
                 <tbody>
 
-				<?php /*$label = 'Show random related products by category if none selected. ("Yes" or "No")' ?>
-					<?php $key = 'show_random_related'; ?>
-					<?php $opt = $wc_bom_settings[ $key ]; ?>
-                    <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
+                <tr>
+					<?php $label         = 'Enable Inventory Posts';
+					$key                 = $this->format_key( $label );
+					$id                  = WCB_PREFIX . $key;
+					$this->option_keys[] = $key; ?>
+                    <th scope="row"><label for="<?php _e( $id ); ?>"><?php _e( $label ); ?></label></th>
+                    <td><input type="checkbox" id="<?php _e( $id ); ?>"
+                               title="<?php _e( $id ); ?>"
+                               name="wcb_options[<?php _e( $key ); ?>]"
+                               value="1"<?php checked( 1, $wcb_options[ $key ], true ); ?> /></td>
+                </tr>
+
+                <tr>
+					<?php $label         = 'Enable Vendor Taxonomy';
+					$key                 = $this->format_key( $label );
+					$id                  = WCB_PREFIX . $key;
+					$this->option_keys[] = $key; ?>
+                    <th scope="row"><label for="<?php _e( $id ); ?>"><?php _e( $label ); ?></label></th>
+                    <td><input type="checkbox" id="<?php _e( $id ); ?>"
+                               title="<?php _e( $id ); ?>"
+                               name="wcb_options[<?php _e( $key ); ?>]"
+                               value="1"<?php checked( 1, $wcb_options[ $key ], true ); ?> /></td>
+                </tr>
+
+                <tr>
+					<?php $label         = 'Enable BOM Posts';
+					$key                 = $this->format_key( $label );
+					$id                  = WCB_PREFIX . $key;
+					$this->option_keys[] = $key; ?>
+                    <th scope="row"><label for="<?php _e( $id ); ?>"><?php _e( $label ); ?></label></th>
+                    <td><input type="checkbox" id="<?php _e( $id ); ?>"
+                               title="<?php _e( $id ); ?>"
+                               name="wcb_options[<?php _e( $key ); ?>]"
+                               value="1"<?php checked( 1, $wcb_options[ $key ], true ); ?> /></td>
+                </tr>
+
+
+                <tr><?php $label         = 'Related Text';
+					$key                 = $this->format_key( $label );
+					$id                  = WCB_PREFIX . $key;
+					$this->option_keys[] = $key; ?>
+                    <th scope="row"><label for="<?php _e( $id ); ?>"><?php _e( $label ); ?></label></th>
                     <td><input type="text"
-                               title="wc_bom_settings[<?php _e( $key ); ?>]"
-                               id="wc_bom_settings[<?php _e( $key ); ?>]"
-                               name="wc_bom_settings[<?php _e( $key ); ?>]"
-                               value="<?php echo $wc_bom_settings[ $key ]; */ ?>
-                <tr>
-					<?php $label = 'Enable Inventory Posts'; ?>
-					<?php $key = $this->format_key( $label ); ?>
-					<?php $opt = $wc_bom_settings[ $key ]; ?>
-                    <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
-                    <td><input type="checkbox" id="<?php _e( $key ); ?>"
-                               title="<?php _e( $key ); ?>"
-                               name="wc_bom_settings[<?php _e( $key ); ?>]"
-                               value="1"<?php checked( 1, $wc_bom_settings[ $key ], true ); ?> /></td>
-                </tr>
-
-                <tr>
-					<?php $label = 'Enable Vendor Taxonomy'; ?>
-					<?php $key = $this->format_key( $label ); ?>
-					<?php $opt = $wc_bom_settings[ $key ]; ?>
-                    <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
-                    <td><input type="checkbox" id="<?php _e( $key ); ?>"
-                               title="<?php _e( $key ); ?>"
-                               name="wc_bom_settings[<?php _e( $key ); ?>]"
-                               value="1"<?php checked( 1, $wc_bom_settings[ $key ], true ); ?> /></td>
-                </tr>
-
-                <tr>
-					<?php $label = 'Enable BOM Posts'; ?>
-					<?php $key = $this->format_key( $label ); ?>
-					<?php $opt = $wc_bom_settings[ $key ]; ?>
-                    <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
-                    <td><input type="checkbox" id="<?php _e( $key ); ?>"
-                               title="<?php _e( $key ); ?>"
-                               name="wc_bom_settings[<?php _e( $key ); ?>]"
-                               value="1"<?php checked( 1, $wc_bom_settings[ $key ], true ); ?> /></td>
-                </tr>
-
-                <tr>
-					<?php $label = 'Enable Import Export'; ?>
-					<?php $key = $this->format_key( $label ); ?>
-					<?php $opt = $wc_bom_settings[ $key ]; ?>
-                    <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
-                    <td><input type="checkbox" id="<?php _e( $key ); ?>"
-                               title="<?php _e( $key ); ?>"
-                               name="wc_bom_settings[<?php _e( $key ); ?>]"
-                               value="1"<?php checked( 1, $wc_bom_settings[ $key ], true ); ?> /></td>
-                </tr>
-
-                <tr><?php $label = 'Related Total';
-					$key         = $this->format_key( $label );
-					$obj         = $wc_bom_settings[ $key ]; ?>
-                    <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
-                    <td><input type="number"
-                               title="<?php _e( $key ); ?>"
-                               id="<?php _e( $key ); ?>"
-                               name="wc_bom_settings[<?php _e( $key ); ?>]"
-                               value="<?php echo $wc_bom_settings[ $key ]; ?>"/>
+                               title="<?php _e( $id ); ?>"
+                               id="<?php _e( $id ); ?>"
+                               name="wcb_options[<?php _e( $key ); ?>]"
+                               value="<?php echo $wcb_options[ $key ]; ?>"/>
                     </td>
-                </tr>
-                <tr><?php $label = 'Related Text';
-					$key         = $this->format_key( $label );
-					$obj         = $wc_bom_settings[ $key ]; ?>
-                    <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
-                    <td><input type="text"
-                               title="<?php _e( $key ); ?>"
-                               id="<?php _e( $key ); ?>"
-                               name="wc_bom_settings[<?php _e( $key ); ?>]"
-                               value="<?php echo $wc_bom_settings[ $key ]; ?>"/>
-                    </td>
-                </tr>
-
-                <tr><?php $label = 'Install DB';
-					$key         = $this->format_key( $label );
-					$obj         = $wc_bom_settings[ $key ]; ?>
-                    <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
-                    <td>
-                        <span class="button primary" id="install_db" name="install_db">Install</span>
-                    </td>
-                    <th>
-                        <input type="submit" class="button button-primary"
-                               id="<?php _e( $key ); ?>"
-                               name="<?php _e( $key ); ?>"
-                               value="Install DB"/>
-                    </th>
-                </tr>
-
-
-                <tr>
-					<?php $label = 'Show Related'; ?>
-					<?php $key = $this->format_key( $label ); ?>
-					<?php $opt = $wc_bom_settings[ $key ]; ?>
-                    <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
-                    <td><input type="checkbox" id="<?php _e( $key ); ?>"
-                               title="<?php _e( $key ); ?>"
-                               name="wc_bom_settings[<?php _e( $key ); ?>]"
-                               value="1"<?php checked( 1, $wc_bom_settings[ $key ], true ); ?> /></td>
-                </tr>
-                <tr><?php $label = 'Related Total';
-					$key         = $this->format_key( $label );
-					$obj         = $wc_bom_settings[ $key ]; ?>
-                    <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
-                    <td><input type="number"
-                               title="<?php _e( $key ); ?>"
-                               id="<?php _e( $key ); ?>"
-                               name="wc_bom_settings[<?php _e( $key ); ?>]"
-                               value="<?php echo $wc_bom_settings[ $key ]; ?>"/>
-                    </td>
-                </tr>
-                <tr><?php $label = 'Related Text';
-					$key         = $this->format_key( $label );
-					$obj         = $wc_bom_settings[ $key ]; ?>
-                    <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
-                    <td><input type="text"
-                               title="<?php _e( $key ); ?>"
-                               id="<?php _e( $key ); ?>"
-                               name="wc_bom_settings[<?php _e( $key ); ?>]"
-                               value="<?php echo $wc_bom_settings[ $key ]; ?>"/>
-                    </td>
-                </tr>
-
-                <tr><?php $label = 'Install DB';
-					$key         = $this->format_key( $label );
-					$obj         = $wc_bom_settings[ $key ]; ?>
-                    <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
-                    <td>
-                        <span class="button primary" id="install_db" name="install_db">Install</span>
-                    </td>
-                    <th>
-                        <input type="submit" class="button button-primary"
-                               id="<?php _e( $key ); ?>"
-                               name="<?php _e( $key ); ?>"
-                               value="Install DB"/>
-                    </th>
                 </tr>
 
 
@@ -473,27 +330,37 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
         <div id="wcrp-settings">
             <table class="form-table">
                 <tbody>
-                <tr><?php $label = 'Copy Product Data';
-					$key         = $this->format_key( $label );
-					$obj         = $wc_bom_settings[ $key ]; ?>
+                <tr><?php $label         = 'Copy Product Data';
+					$key                 = $this->format_key( $label );
+					$id                  = WCB_PREFIX . $key;
+					$this->option_keys[] = $key; ?>
                     <th scope="row"><label for="<?php _e( $key ); ?>"><?php _e( $label ); ?></label></th>
                     <td>
                         <select id="<?php _e( $key ); ?>"
-                                name="wc_bom_settings[<?php _e( $key ); ?>]"
-                                data-placeholder="Select Product" value="wc_bom_settings[<?php _e( $key ); ?>]"
+                                name="wcb_options[<?php _e( $key ); ?>]"
+                                data-placeholder="Select Product" value="wcb_options[<?php _e( $key ); ?>]"
                                 class="prod-select wc_bom_select chosen-select">
-							<?php _e( $this->build_select_options( $wc_bom_settings[ $key ] ), 'wc-related-products' ); ?>
+							<?php _e( $this->build_select_options( $wcb_options[ $key ] ), 'wc-related-products' ); ?>
                         </select>
                     </td>
                     <th>
                         <input type="hidden"
                                id="prod_bom"
                                name="prod_bom"
-                               value="<?php echo $wc_bom_settings[ $key ]; ?>"/>
+                               value="<?php echo $wcb_options[ $key ]; ?>"/>
+
+						<?php $label         = 'Option Keys';
+						$key                 = $this->format_key( $label );
+						$id                  = WCB_PREFIX . $key;
+						$this->option_keys[] = $key;
+
+						$wcb_options[ $key ] = json_encode( $this->option_keys );
+						?>
+                        <input type="hidden"
+                               id="prod_bom"
+                               name="wcb_options[<?php _e( $key ); ?>]"
+                               value="'<?php echo implode( ",", $this->option_keys ); ?>'"/>
                     </th>
-                    <td>
-                        <div id="p_out" name="p_out"><span id="p_it" name="p_it">Hello there!</span></div>
-                    </td>
                 </tr>
 
                 <tr>
@@ -504,14 +371,15 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
                     </td>
                 </tr>
                 <tr><?php ?>
-                    <th scope="row"></th>
                     <td><span id="prod_output" name="prod_output"><strong>Prod</strong></span></td>
                 </tr>
                 </tbody>
             </table>
         </div>
 
-		<?php return 'hi';
+		<?php var_dump( $this->option_keys );
+
+		return 'hi';
 	}
 
 	/**
@@ -520,9 +388,11 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 	 * @return string
 	 */
 	protected function format_key( $text ) {
-		$str                  = str_replace( [ '-', ' ' ], '_', $text );
-		$lower                = strtolower( $str );
-		$this->option_names[] = $lower;
+		$str   = str_replace( [ '-', ' ' ], '_', $text );
+		$lower = strtolower( $str );
+
+		//	$this->option_keys[] = $lower;
+
 
 		return $lower;
 	}
@@ -553,35 +423,9 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 	}
 
 	/**
-	 *
-	 */
-	protected function wco_admin() {
-
-
-		$ajax_data = $this->get_data();
-
-		$settings = $this->wc_bom_settings;
-		$opts     = $this->wc_bom_settings;
-		$icon     = plugins_url( 'assets/images/ajax-loader.gif', WCB );
-		$p        = $opts['copy_product_data'];
-
-
-		$ajax_object = [
-			'ajax_url'  => admin_url( 'admin-ajax.php' ),
-			'nonce'     => wp_create_nonce( 'ajax_nonce' ),
-			'product'   => $p,
-			'action'    => [ $this, 'wco_ajax' ], //'options'  => 'wc_bom_option[opt]',
-			'ajax_data' => $p,
-			'settings'  => json_encode( $this->wc_bom_settings() ),
-			'icon'      => $icon,
-		];
-		wp_localize_script( 'bom_adm_js', 'ajax_object', $ajax_object );
-	}
-
-	/**
 	 * @return array
 	 */
-	protected function get_data() {
+	public function get_data() {
 
 		$args = [
 			'post_type'      => 'product',
@@ -607,7 +451,31 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 	/**
 	 *
 	 */
-	protected function wco_ajax() {
+	public function wco_admin() {
+
+		global $wcb_options;
+		$ajax_data = $this->get_data();
+		$settings  = $wcb_options;
+		$opts      = $wcb_options;
+		$p         = $opts['copy_product_data'];
+
+
+		$ajax_object = [
+			'ajax_url'  => admin_url( 'admin-ajax.php' ),
+			'nonce'     => wp_create_nonce( 'ajax_nonce' ),
+			'product'   => $wcb_options['copy_product_data'],
+			'action'    => [ $this, 'wco_ajax' ], //'options'  => 'wc_bom_option[opt]',
+			'ajax_data' => $p,
+			'settings'  => json_encode( $wcb_options ),
+			'keys'      => json_encode( $this->option_keys ),
+		];
+		wp_localize_script( 'bom_adm_js', 'ajax_object', $ajax_object );
+	}
+
+	/**
+	 *
+	 */
+	public function wco_ajax() {
 
 		//global $wpdb;
 		check_ajax_referer( 'ajax_nonce', 'security' );
@@ -726,7 +594,7 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 		$in  = $_POST['input'];
 
 
-		update_option( 'wc_bom_settings', $in );
+		update_option( 'wcb_options', $in );
 
 		echo $in;
 		echo json_encode( $parrr_arr );
@@ -739,14 +607,18 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 		echo '<br><hr><br>';
 		echo json_encode( $par_arr );
 		//echo json_encode( $par_arr );
-		//var_dump( get_option( 'wc_bom_settings' ) );
+		//var_dump( get_option( 'wcb_options' ) );
 		//echo json_decode( $set );
 
-		//echo json_encode( get_option( 'wc_bom_settings' ) );
+		//echo json_encode( get_option( 'wcb_options' ) );
 		//echo 'ZIP - ' . $i . ' <br>';
 		//
 
 		wp_die( 'Ajax finished.' );
+	}
+
+	protected function pre_init() {
+
 	}
 
 }
