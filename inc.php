@@ -91,7 +91,7 @@ add_action( 'init', function () {
 } );
 
 add_filter( 'post_type_link', function ( $link, $post ) {
-	if ( 'episodes' == get_post_type( $post ) ) {
+	if ( 'episodes' === get_post_type( $post ) ) {
 		//Lets go to get the parent cartoon-series name
 		if ( $post->post_parent ) {
 			$parent = get_post( $post->post_parent );

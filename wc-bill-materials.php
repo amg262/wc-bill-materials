@@ -10,21 +10,46 @@ Author URI:  http://andrewgunn.net
 /**
  *
  */
+const WCB_VERSION = '1.0.0';
 
-const WC_BOM_DB_VERSION = 1;
-const WCB               = __FILE__;
-const WC_BOM_SETTINGS   = 'wc_bom_settings';
+const WCB_RELEASE = 'beta';
+
+
+const WCB_DB_VERSION = 1;
+/**
+ *
+ *
+ */
+const WCB = __FILE__;
+/**
+ *
+ */
+const WC_BOM_SETTINGS = 'wc_bom_settings';
 /**
  *
  */
 const WC_BOM_OPTIONS = 'wc_bom_options';
 
+/**
+ *
+ */
 const WCB_PREFIX = '';
 
+/**
+ *
+ */
 const WCB_OPTIONS = 'wcb_options';
 
 
-global $wcb_options;
+/**
+ *
+ */
+const WCB_DB_TBL = 'wc_bill_materials';
+
+const WCB_DATA = 'wcb_data';
+
+
+global $wcb_options, $wcb_data;
 
 /**
  * Class WC_Related_Products
@@ -48,12 +73,18 @@ class WC_Bill_Materials {
 	 * WC_Related_Products constructor.
 	 */
 	public function init() {
-		global $wcb_options;
-		$wcb_options = $this->wcb_options();
+		global $wcb_options, $wcb_data;
 
+		$wcb_options = $this->wcb_options();
+		$wcb_data = $this->wcb_data();
+
+		//delete_option( WCB_OPTIONS );
+		//delete_option( WCB_DATA );
+		//register_activation_hook( __FILE__, [ $this, 'activate' ] );
+
+		//register_deactivation_hook( __FILE__, [ $this, 'activate' ] );
 		include_once __DIR__ . '/classes/class-wcbm-settings.php';
 		include_once __DIR__ . '/classes/class-wcbm-post.php';
-		include_once __DIR__ . '/classes/class-wcbm-data.php';
 
 		include_once __DIR__ . '/inc.php';
 		//include_once __DIR__.'/classes/functions.php';
@@ -66,18 +97,6 @@ class WC_Bill_Materials {
 		add_action( 'admin_init', [ $this, 'create_options' ] );
 		add_filter( 'plugin_action_links', [ $this, 'plugin_links' ], 10, 5 );
 
-	}
-
-	public function wcb_options() {
-		global $wcb_options;
-
-		if ( ! get_option( WCB_OPTIONS ) ) {
-			add_option( WCB_OPTIONS, [ 'init' => true ] );
-		}
-
-		$wcb_options = get_option( WCB_OPTIONS );
-
-		return $wcb_options;
 	}
 
 	/**
@@ -95,10 +114,89 @@ class WC_Bill_Materials {
 	/**
 	 * @return mixed
 	 */
-	public function create_options() {
+	public function wcb_data() {
+		global $wcb_data;
 
-		if ( ! get_option( WC_BOM_SETTINGS ) ) {
-			add_option( WC_BOM_SETTINGS, [ 'init' => 'true' ] );
+		if ( ! $wcb_data ) {
+			if ( ! get_option( WCB_DATA ) ) {
+				add_option( WCB_DATA, [
+					'init' => true,
+					'ver'  => WCB_VERSION,
+					'db'   => WCB_DB_VERSION,
+					'rel'  => WCB_RELEASE,
+				] );
+			}
+			$wcb_data = get_option( WCB_DATA );
+		}
+
+		return $wcb_data;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function wcb_options() {
+		global $wcb_options;
+
+		if ( ! $wcb_options ) {
+			if ( ! get_option( WCB_OPTIONS ) ) {
+				add_option( WCB_OPTIONS, [
+					'init' => true,
+				] );
+			}
+			$wcb_options = get_option( WCB_OPTIONS );
+		}
+
+		return $wcb_options;
+	}
+
+	/**
+	 *
+	 */
+	public function install_data() {
+		global $wpdb;
+
+		$welcome_name = 'Mr. WordPress';
+		$welcome_text = 'Congratulations, you just completed the installation!';
+
+		$table_name = $wpdb->prefix . WCB_DB_TBL;
+
+		$wpdb->insert(
+			$table_name,
+			[
+				'time' => current_time( 'mysql' ),
+				'name' => $welcome_name,
+				'data' => $welcome_text,
+				'url'  => 'http://cloudground.net/',
+			]
+		);
+	}
+
+	public function upgrade_data() {
+		global $wpdb;
+		global $wcb_options;
+		global $wcb_data;
+
+		$key = 'db_version';
+
+		if ( $wcb_data[ $key ] !== WCB_DB_VERSION ) {
+			$table_name = $wpdb->prefix . WCB_DB_TBL;
+
+			$sql = "CREATE TABLE IF NOT EXISTS $table_name (
+					id int(11) NOT NULL AUTO_INCREMENT,
+					time datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+					name tinytext NOT NULL,
+					data text NOT NULL,
+					url varchar(255) DEFAULT '' NOT NULL,
+					PRIMARY KEY  (id)
+				);";
+
+			$sql2 = "DROP TABLE $table_name;";
+
+			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+
+			dbDelta( $sql2 );
+
 		}
 
 	}
@@ -157,6 +255,9 @@ class WC_Bill_Materials {
 		//wp_enqueue_style( 'bom_css' );
 	}
 
+	/**
+	 *
+	 */
 	public function check_dist() {
 
 		if ( file_exists( __DIR__ . '/dist/wc-bom-admin.min.js' ) ) {
