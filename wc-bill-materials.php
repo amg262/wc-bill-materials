@@ -23,13 +23,6 @@ const WCB_PREFIX = '';
 
 const WCB_OPTIONS = 'wcb_options';
 
-const WCB_DIST_PATH = __DIR__ . '/dist/';
-
-
-const WCB_ASSETS_PATH = __DIR__ . '/assets/';
-
-const WCB_CLASSES_PATH = __DIR__ . '/classes/';
-
 
 global $wcb_options;
 
@@ -61,6 +54,8 @@ class WC_Bill_Materials {
 		include_once __DIR__ . '/classes/class-wcbm-settings.php';
 		include_once __DIR__ . '/classes/class-wcbm-post.php';
 		include_once __DIR__ . '/classes/class-wcbm-data.php';
+
+		include_once __DIR__ . '/inc.php';
 		//include_once __DIR__.'/classes/functions.php';
 		$set  = WC_RP_Settings::getInstance();
 		$post = WC_RP_Post::getInstance();
@@ -122,33 +117,14 @@ class WC_Bill_Materials {
 		}
 		if ( $plugin === $plugin_file ) {
 			$settings = [
-				'settings' => '<a href="admin.php?page=wc_related_products">' . __( 'Settings', 'wc-bom' ) . '</a>',
+				'settings' => '<a href="admin.php?page=wc-bill-materials">' . __( 'Settings', 'wc-bom' ) . '</a>',
+				'parts'    => '<a href="edit.php?post_type=part">' . __( 'Parts', 'wc-bom' ) . '</a>',
+				'assembly' => '<a href="edit.php?post_type=assembly">' . __( 'Assembly', 'wc-bom' ) . '</a>',
 			];
 			$actions  = array_merge( $settings, $actions );
 		}
 
 		return $actions;
-	}
-
-
-	public function check_dist() {
-
-		if ( file_exists( __DIR__ . '/dist/wc-bom-admin.min.js' ) ) {
-			wp_register_script( 'bom_adm_js', plugins_url( 'assets/wc-bom-admin.js', __FILE__ ), [ 'jquery' ] );
-			wp_register_script( 'bom_adm_min_js', plugins_url( 'dist/wc-bom-admin.min.js', __FILE__ ), [ 'jquery' ] );
-
-			wp_enqueue_script( 'bom_adm_js' );
-			//wp_enqueue_script( 'bom_adm_min_js' );
-		}
-
-		if ( file_exists( __DIR__ . '/dist/wc-bom.min.css' ) ) {
-			wp_register_style( 'bom_css', plugins_url(  'assets/wc-bom.css', __FILE__ ) );
-			wp_register_style( 'bom_min_css', plugins_url(  'dist/wc-bom.min.css', __FILE__ ) );
-
-			wp_enqueue_style( 'bom_css' );
-			//wp_enqueue_style( 'bom_min_css' );
-		}
-
 	}
 
 	/**
@@ -179,6 +155,26 @@ class WC_Bill_Materials {
 		wp_enqueue_script( 'chosen_js' );
 		wp_enqueue_style( 'chosen_css' );
 		//wp_enqueue_style( 'bom_css' );
+	}
+
+	public function check_dist() {
+
+		if ( file_exists( __DIR__ . '/dist/wc-bom-admin.min.js' ) ) {
+			wp_register_script( 'bom_adm_js', plugins_url( 'assets/wc-bom-admin.js', __FILE__ ), [ 'jquery' ] );
+			wp_register_script( 'bom_adm_min_js', plugins_url( 'dist/wc-bom-admin.min.js', __FILE__ ), [ 'jquery' ] );
+
+			wp_enqueue_script( 'bom_adm_js' );
+			//wp_enqueue_script( 'bom_adm_min_js' );
+		}
+
+		if ( file_exists( __DIR__ . '/dist/wc-bom.min.css' ) ) {
+			wp_register_style( 'bom_css', plugins_url( 'assets/wc-bom.css', __FILE__ ) );
+			wp_register_style( 'bom_min_css', plugins_url( 'dist/wc-bom.min.css', __FILE__ ) );
+
+			wp_enqueue_style( 'bom_css' );
+			//wp_enqueue_style( 'bom_min_css' );
+		}
+
 	}
 }
 
