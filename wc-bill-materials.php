@@ -89,7 +89,7 @@ class wc_bill_materials {
 	/**
 	 * @var array
 	 */
-	public $data_key = [
+	public $data = [
 		'init' => false,
 		'db'   => WCB_DB,
 		'rel'  => WCB_REL,
@@ -97,6 +97,17 @@ class wc_bill_materials {
 		'file' => WCB_FILE,
 	];
 
+	/**
+	 * @var array
+	 */
+	public $options = [
+		'init' => false,
+		'db'   => WCB_DB,
+		'rel'  => WCB_REL,
+		'ver'  => WCB_VER,
+		'file' => WCB_FILE,
+
+	];
 	/**
 	 * @var array
 	 */
@@ -190,12 +201,14 @@ class wc_bill_materials {
 		global $wcb_data;
 
 		if ( ! get_option( WCB_DATA ) ) {
-			add_option( WCB_DATA, $this->data_key );
+			add_option( WCB_DATA, $this->data['db'] );
 
 		}
 		//update_option( WCB_DATA, $this->data_key['key'] );
-		$wcb_data        = get_option( WCB_DATA );
-		$this->data_vals = $wcb_data;
+		$wcb_data   = get_option( WCB_DATA );
+		$this->data = $wcb_data;
+
+		//var_dump( $this->data );
 
 		return $wcb_data;
 	}
@@ -207,11 +220,13 @@ class wc_bill_materials {
 		global $wcb_options;
 
 		if ( ! get_option( WCB_OPTIONS ) ) {
-			add_option( WCB_OPTIONS, $this->option_key );
+			add_option( WCB_OPTIONS, $this->options['init'] );
 		}
 
-		$wcb_options       = get_option( WCB_OPTIONS );
-		$this->option_vals = $wcb_options;
+		$wcb_options   = get_option( WCB_OPTIONS );
+		$this->options = $wcb_options;
+
+		//var_dump( $this->options );
 
 		return $wcb_options;
 
@@ -240,11 +255,11 @@ class wc_bill_materials {
 				);";
 
 			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-			$this->data_vals['init'] = true;
+			$this->data['val']['init'] = true;
 
-			$this->data_vals['db'] = WCB_DB;
+			$this->data['val']['db'] = WCB_DB;
 
-			update_option( WCB_DATA, $this->data_vals );
+			update_option( WCB_DATA, $this->data['val'] );
 			dbDelta( $sql );
 		}
 
