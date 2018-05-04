@@ -31,7 +31,7 @@ const WCB_KEY = 'wcb.key';
 /**
  *
  */
-const WCB_DB = 8;
+const WCB_DB = 1;
 /**
  *
  *
@@ -90,7 +90,7 @@ class wc_bill_materials {
 	 * @var array
 	 */
 	public $data = [
-		'init' => false,
+		'init' => true,
 		'db'   => WCB_DB,
 		'rel'  => WCB_REL,
 		'ver'  => WCB_VER,
@@ -101,20 +101,11 @@ class wc_bill_materials {
 	 * @var array
 	 */
 	public $options = [
-		'init' => false,
-		'db'   => WCB_DB,
-		'rel'  => WCB_REL,
-		'ver'  => WCB_VER,
-		'file' => WCB_FILE,
+		'init'   => true,
+		'config' => [],
 
 	];
-	/**
-	 * @var array
-	 */
-	public $option_key = [
-		'init' => true,
 
-	];
 
 	/**
 	 * WC_Related_Products constructor.
@@ -179,18 +170,10 @@ class wc_bill_materials {
 		global $wcb_data, $wcb_options;
 
 		//delete_option( WCB_DATA );
-		$wcb_data    = $this->wcb_data();
-		$wcb_options = $this->wcb_options();
+		$wcb_data    = ( ! isset( $wcb_data ) ) ? $this->wcb_data() : $wcb_data;
+		$wcb_options = ( ! isset( $wcb_options ) ) ? $this->wcb_options() : $wcb_options;
 
-
-		var_dump( $wcb_data );
-		var_dump( $wcb_options );
 		$this->upgrade_data();
-
-		//$this->delete_db();
-
-
-		//if ( $wcb_data )
 
 	}
 
@@ -201,14 +184,10 @@ class wc_bill_materials {
 		global $wcb_data;
 
 		if ( ! get_option( WCB_DATA ) ) {
-			add_option( WCB_DATA, $this->data['db'] );
+			add_option( WCB_DATA, $this->data );
 
 		}
-		//update_option( WCB_DATA, $this->data_key['key'] );
-		$wcb_data   = get_option( WCB_DATA );
-		$this->data = $wcb_data;
-
-		//var_dump( $this->data );
+		$wcb_data = get_option( WCB_DATA );
 
 		return $wcb_data;
 	}
@@ -220,11 +199,10 @@ class wc_bill_materials {
 		global $wcb_options;
 
 		if ( ! get_option( WCB_OPTIONS ) ) {
-			add_option( WCB_OPTIONS, $this->options['init'] );
+			add_option( WCB_OPTIONS, $this->options );
 		}
 
-		$wcb_options   = get_option( WCB_OPTIONS );
-		$this->options = $wcb_options;
+		$wcb_options = get_option( WCB_OPTIONS );
 
 		//var_dump( $this->options );
 
@@ -255,7 +233,7 @@ class wc_bill_materials {
 				);";
 
 			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-			$this->data['val']['init'] = true;
+			$this->data['init'] = true;
 
 			$this->data['val']['db'] = WCB_DB;
 
