@@ -10,12 +10,22 @@ Author URI:  http://andrewgunn.net
 /**
  *
  */
-const WCB_VERSION = '1.0.0';
+const WCB_VER = '1.0.0';
 
-const WCB_RELEASE = 'beta';
+/**
+ *
+ */
+const WCB_REL = 'beta';
 
 
-const WCB_DB_VERSION = 1;
+const WCB_FILE = 'wcb.txt';
+
+
+const WCB_KEY = 'wcb.key';
+/**
+ *
+ */
+const WCB_DB = 1;
 /**
  *
  *
@@ -24,7 +34,7 @@ const WCB = __FILE__;
 /**
  *
  */
-const WC_BOM_SETTINGS = 'wc_bom_settings';
+const WCB_SETTINGS = 'wc_bom_settings';
 /**
  *
  */
@@ -44,8 +54,11 @@ const WCB_OPTIONS = 'wcb_options';
 /**
  *
  */
-const WCB_DB_TBL = 'wc_bill_materials';
+const WCB_TBL = 'wc_bill_materials';
 
+/**
+ *
+ */
 const WCB_DATA = 'wcb_data';
 
 
@@ -54,13 +67,28 @@ global $wcb_options, $wcb_data;
 /**
  * Class WC_Related_Products
  */
-class WC_Bill_Materials {
+class wc_bill_materials {
 
 
 	/**
 	 * @var null
 	 */
 	protected static $instance = null;
+
+	public $meta_args = [
+		'data'    => [
+			'init'    => false,
+			'db'      => WCB_DB,
+			'db_init' => '',
+			'rel'     => WCB_REL,
+			'ver'     => WCB_VER,
+			'file'    => WCB_FILE,
+
+		],
+		'options' => [],
+		'config'  => [],
+	];
+
 
 	/**
 	 * WC_Related_Products constructor.
@@ -75,8 +103,13 @@ class WC_Bill_Materials {
 	public function init() {
 		global $wcb_options, $wcb_data;
 
-		$wcb_options = $this->wcb_options();
-		$wcb_data = $this->wcb_data();
+		//$wcb_options = $this->wcb_options();
+		//$wcb_data    = $this->wcb_data();
+		//$wcb_data = get_option( WCB_DATA );
+
+
+		//add_action( 'admin_init', [ $this, 'wcb_data' ] );
+		//var_dump( $wcb_data );
 
 		//delete_option( WCB_OPTIONS );
 		//delete_option( WCB_DATA );
@@ -90,13 +123,15 @@ class WC_Bill_Materials {
 		//include_once __DIR__.'/classes/functions.php';
 		$set  = WC_RP_Settings::getInstance();
 		$post = WC_RP_Post::getInstance();
-		$db   = WC_Bom_Data::getInstance();
+		//$db   = WC_Bom_Data::getInstance();
 		//$db   = WC_Bom_Data::getInstance();
 
 		add_action( 'init', [ $this, 'load_assets' ] );
 		add_action( 'admin_init', [ $this, 'create_options' ] );
 		add_filter( 'plugin_action_links', [ $this, 'plugin_links' ], 10, 5 );
 
+		//$this->zah();
+		add_action( 'admin_init', [ $this, 'zah' ] );
 	}
 
 	/**
@@ -111,23 +146,16 @@ class WC_Bill_Materials {
 		return static::$instance;
 	}
 
+
 	/**
 	 * @return mixed
 	 */
-	public function wcb_data() {
-		global $wcb_data;
+	public function zah() {
 
-		if ( ! $wcb_data ) {
-			if ( ! get_option( WCB_DATA ) ) {
-				add_option( WCB_DATA, [
-					'init' => true,
-					'ver'  => WCB_VERSION,
-					'db'   => WCB_DB_VERSION,
-					'rel'  => WCB_RELEASE,
-				] );
-			}
-			$wcb_data = get_option( WCB_DATA );
-		}
+		global $wcb_data, $wcb_options;
+
+		$wcb_data    = $this->wcb_data();
+		$wcb_options = $this->wcb_options();
 
 		return $wcb_data;
 	}
@@ -135,31 +163,77 @@ class WC_Bill_Materials {
 	/**
 	 * @return mixed
 	 */
-	public function wcb_options() {
-		global $wcb_options;
+	public function wcb_data() {
 
-		if ( ! $wcb_options ) {
-			if ( ! get_option( WCB_OPTIONS ) ) {
-				add_option( WCB_OPTIONS, [
-					'init' => true,
-				] );
-			}
-			$wcb_options = get_option( WCB_OPTIONS );
+		if ( ! get_option( WCB_OPTIONS ) ) {
+			add_option( WCB_OPTIONS, $this->meta_args['options'] );
 		}
 
-		return $wcb_options;
+		if ( ! get_option( WCB_DATA ) ) {
+			add_option( WCB_DATA, $this->meta_args['data'] );
+
+		} elseif ( get_option( WCB_DATA )['db'] !== $this->data_args['db'] ) {
+			$this->upgrade_data( get_option( WCB_DATA )['db'] );
+		}
+
+		return get_option( WCB_DATA );
 	}
 
 	/**
 	 *
 	 */
-	public function install_data() {
+	protected function upgrade_data( $data ) {
+		global $wpdb;
+
+		if ( $data !== WCB_DB ) {
+
+			$table_name = $wpdb->prefix . WCB_TBL;
+
+			$sql = "CREATE TABLE IF NOT EXISTS $table_name (
+					id int(11) NOT NULL AUTO_INCREMENT,
+					time datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+					name tinytext NOT NULL,
+					data text NOT NULL,
+					url varchar(255) DEFAULT '' NOT NULL,
+					PRIMARY KEY  (id)
+				);";
+
+			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+
+			dbDelta( $sql );
+
+			$this->data_args['db'] = WCB_DB;
+
+			update_option( WCB_DATA, $this->data_args );
+
+			return true;
+		}
+
+	}
+
+
+	public function delete_db() {
+		global $wpdb;
+
+		$table_name = $wpdb->prefix . WCB_TBL;
+
+		$wpdb->query( "DROP TABLE IF EXISTS " . $table_name . "" );
+
+		delete_option( WCB_DATA );
+		delete_option( WCB_OPTIONS );
+		//update_option( 'wc_bom_settings', [ 'db_version' => null ] );
+	}
+
+	/**
+	 *
+	 */
+	protected function install_data() {
 		global $wpdb;
 
 		$welcome_name = 'Mr. WordPress';
 		$welcome_text = 'Congratulations, you just completed the installation!';
 
-		$table_name = $wpdb->prefix . WCB_DB_TBL;
+		$table_name = $wpdb->prefix . WCB_TBL;
 
 		$wpdb->insert(
 			$table_name,
@@ -172,42 +246,13 @@ class WC_Bill_Materials {
 		);
 	}
 
-	public function upgrade_data() {
-		global $wpdb;
-		global $wcb_options;
-		global $wcb_data;
-
-		$key = 'db_version';
-
-		if ( $wcb_data[ $key ] !== WCB_DB_VERSION ) {
-			$table_name = $wpdb->prefix . WCB_DB_TBL;
-
-			$sql = "CREATE TABLE IF NOT EXISTS $table_name (
-					id int(11) NOT NULL AUTO_INCREMENT,
-					time datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
-					name tinytext NOT NULL,
-					data text NOT NULL,
-					url varchar(255) DEFAULT '' NOT NULL,
-					PRIMARY KEY  (id)
-				);";
-
-			$sql2 = "DROP TABLE $table_name;";
-
-			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-
-			dbDelta( $sql2 );
-
-		}
-
-	}
-
 	/**
 	 * @param $actions
 	 * @param $plugin_file
 	 *
 	 * @return array
 	 */
-	public function plugin_links( $actions, $plugin_file ) {
+	protected function plugin_links( $actions, $plugin_file ) {
 		static $plugin;
 
 		if ( $plugin === null ) {
@@ -228,7 +273,7 @@ class WC_Bill_Materials {
 	/**
 	 *
 	 */
-	public function load_assets() {
+	protected function load_assets() {
 		$url  = 'assets/';
 		$url2 = 'assets/';
 
@@ -258,7 +303,7 @@ class WC_Bill_Materials {
 	/**
 	 *
 	 */
-	public function check_dist() {
+	protected function check_dist() {
 
 		if ( file_exists( __DIR__ . '/dist/wc-bom-admin.min.js' ) ) {
 			wp_register_script( 'bom_adm_js', plugins_url( 'assets/wc-bom-admin.js', __FILE__ ), [ 'jquery' ] );
@@ -279,5 +324,5 @@ class WC_Bill_Materials {
 	}
 }
 
-$wcrp = WC_Bill_Materials::getInstance();
+$wcrp = wc_bill_materials::getInstance();
 

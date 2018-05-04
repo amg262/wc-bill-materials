@@ -6,7 +6,7 @@
  *
  */
 
-global $wcb_options;
+//global $wcb_options;
 
 if ( ! is_admin() ) {
 	//wp_die( 'You must be an admin to view this.' );
