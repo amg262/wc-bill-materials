@@ -18,14 +18,20 @@ const WCB_VER = '1.0.0';
 const WCB_REL = 'beta';
 
 
+/**
+ *
+ */
 const WCB_FILE = 'wcb.txt';
 
 
+/**
+ *
+ */
 const WCB_KEY = 'wcb.key';
 /**
  *
  */
-const WCB_DB = 1;
+const WCB_DB = 8;
 /**
  *
  *
@@ -62,7 +68,7 @@ const WCB_TBL = 'wc_bill_materials';
 const WCB_DATA = 'wcb_data';
 
 
-global $wcb_options, $wcb_data;
+global $wcb_args, $wcb_options, $wcb_data;
 
 /**
  * Class WC_Related_Products
@@ -75,20 +81,29 @@ class wc_bill_materials {
 	 */
 	protected static $instance = null;
 
-	public $meta_args = [
-		'data'    => [
-			'init'    => false,
-			'db'      => WCB_DB,
-			'db_init' => '',
-			'rel'     => WCB_REL,
-			'ver'     => WCB_VER,
-			'file'    => WCB_FILE,
 
-		],
-		'options' => [],
-		'config'  => [],
+	public $data_vals = [];
+
+	public $option_vals = [];
+
+	/**
+	 * @var array
+	 */
+	public $data_key = [
+		'init' => false,
+		'db'   => WCB_DB,
+		'rel'  => WCB_REL,
+		'ver'  => WCB_VER,
+		'file' => WCB_FILE,
 	];
 
+	/**
+	 * @var array
+	 */
+	public $option_key = [
+		'init' => true,
+
+	];
 
 	/**
 	 * WC_Related_Products constructor.
@@ -102,6 +117,7 @@ class wc_bill_materials {
 	 */
 	public function init() {
 		global $wcb_options, $wcb_data;
+		add_action( 'admin_init', [ $this, 'check_init' ] );
 
 		//$wcb_options = $this->wcb_options();
 		//$wcb_data    = $this->wcb_data();
@@ -131,7 +147,6 @@ class wc_bill_materials {
 		add_filter( 'plugin_action_links', [ $this, 'plugin_links' ], 10, 5 );
 
 		//$this->zah();
-		add_action( 'admin_init', [ $this, 'zah' ] );
 	}
 
 	/**
@@ -146,16 +161,41 @@ class wc_bill_materials {
 		return static::$instance;
 	}
 
+	/**
+	 *
+	 */
+	public function check_init() {
+		global $wcb_data, $wcb_options;
+
+		//delete_option( WCB_DATA );
+		$wcb_data    = $this->wcb_data();
+		$wcb_options = $this->wcb_options();
+
+
+		var_dump( $wcb_data );
+		var_dump( $wcb_options );
+		$this->upgrade_data();
+
+		//$this->delete_db();
+
+
+		//if ( $wcb_data )
+
+	}
 
 	/**
 	 * @return mixed
 	 */
-	public function zah() {
+	public function wcb_data() {
+		global $wcb_data;
 
-		global $wcb_data, $wcb_options;
+		if ( ! get_option( WCB_DATA ) ) {
+			add_option( WCB_DATA, $this->data_key );
 
-		$wcb_data    = $this->wcb_data();
-		$wcb_options = $this->wcb_options();
+		}
+		//update_option( WCB_DATA, $this->data_key['key'] );
+		$wcb_data        = get_option( WCB_DATA );
+		$this->data_vals = $wcb_data;
 
 		return $wcb_data;
 	}
@@ -163,29 +203,30 @@ class wc_bill_materials {
 	/**
 	 * @return mixed
 	 */
-	public function wcb_data() {
+	public function wcb_options() {
+		global $wcb_options;
 
 		if ( ! get_option( WCB_OPTIONS ) ) {
-			add_option( WCB_OPTIONS, $this->meta_args['options'] );
+			add_option( WCB_OPTIONS, $this->option_key );
 		}
 
-		if ( ! get_option( WCB_DATA ) ) {
-			add_option( WCB_DATA, $this->meta_args['data'] );
+		$wcb_options       = get_option( WCB_OPTIONS );
+		$this->option_vals = $wcb_options;
 
-		} elseif ( get_option( WCB_DATA )['db'] !== $this->data_args['db'] ) {
-			$this->upgrade_data( get_option( WCB_DATA )['db'] );
-		}
+		return $wcb_options;
 
-		return get_option( WCB_DATA );
 	}
 
 	/**
 	 *
 	 */
-	protected function upgrade_data( $data ) {
+	public function upgrade_data() {
 		global $wpdb;
 
-		if ( $data !== WCB_DB ) {
+		global $wcb_data;
+
+
+		if ( $wcb_data['init'] !== true || $wcb_data['db'] < WCB_DB ) {
 
 			$table_name = $wpdb->prefix . WCB_TBL;
 
@@ -199,28 +240,32 @@ class wc_bill_materials {
 				);";
 
 			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+			$this->data_vals['init'] = true;
 
+			$this->data_vals['db'] = WCB_DB;
+
+			update_option( WCB_DATA, $this->data_vals );
 			dbDelta( $sql );
-
-			$this->data_args['db'] = WCB_DB;
-
-			update_option( WCB_DATA, $this->data_args );
-
-			return true;
 		}
+
+		return true;
+
 
 	}
 
-
+	/**
+	 *
+	 */
 	public function delete_db() {
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . WCB_TBL;
 
+		//$q = "SELECT * FROM " . $table_name . " WHERE id > 0  ;";
 		$wpdb->query( "DROP TABLE IF EXISTS " . $table_name . "" );
 
-		delete_option( WCB_DATA );
-		delete_option( WCB_OPTIONS );
+		//delete_option( WCB_DATA );
+		//	delete_option( WCB_OPTIONS );
 		//update_option( 'wc_bom_settings', [ 'db_version' => null ] );
 	}
 
