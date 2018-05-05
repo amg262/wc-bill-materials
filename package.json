@@ -30,6 +30,7 @@
   "homepage": "https://amg262@bitbucket.org/amg262/wc-bom.git",
   "dependencies": {
     "browser-sync": "^2.18.8",
+    "chosenjs": "^1.4.3",
     "cssnano": "^3.10.0",
     "del": "^2.2.2",
     "gulp": "^3.9.1",
@@ -45,8 +46,12 @@
     "gulp-util": "^3.0.8",
     "gulp-watch": "^4.3.11",
     "gulp-zip": "^4.0.0",
+    "jquery": "^3.3.1",
+    "jquery-ui": "^1.12.1",
+    "material-ui": "^0.20.0",
     "postcss": "^6.0.21",
-    "postcss-discard-empty": "^2.1.0"
+    "postcss-discard-empty": "^2.1.0",
+    "sweetalert": "^2.1.0"
   },
   "devDependencies": {}
 }
