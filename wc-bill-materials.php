@@ -31,7 +31,7 @@ const WCB_KEY = 'wcb.key';
 /**
  *
  */
-const WCB_DB = 1;
+const WCB_DB = 5;
 /**
  *
  *
@@ -68,6 +68,12 @@ const WCB_TBL = 'wc_bill_materials';
 const WCB_DATA = 'wcb_data';
 
 
+const PART_META = [ 'part_no', 'sku', 'cost', 'weight', 'stock' ];
+
+const PROD_META  = [ 'product_assembly' => [ 'qty', 'assembly' ] ];
+const ASSEM_META = [ 'assembly_id', 'revision', 'assembly_items' => [ 'qty', 'item' ] ];
+const INVEN_META = [ 'inventory_id', 'type', 'inventory_items' => [ 'qty', 'vendor', 'item' ] ];
+
 global $wcb_args, $wcb_options, $wcb_data;
 
 /**
@@ -97,15 +103,6 @@ class wc_bill_materials {
 		'file' => WCB_FILE,
 	];
 
-	/**
-	 * @var array
-	 */
-	public $options = [
-		'init'   => true,
-		'config' => [],
-
-	];
-
 
 	/**
 	 * WC_Related_Products constructor.
@@ -119,7 +116,16 @@ class wc_bill_materials {
 	 */
 	public function init() {
 		global $wcb_options, $wcb_data;
+
+
+		//delete_option( WCB_OPTIONS );
+		//delete_option( WCB_DATA );
+		//	$wcb_data = $this->wcb_data();
+		add_action( 'init', [ $this, 'load_assets' ] );
+
 		add_action( 'admin_init', [ $this, 'check_init' ] );
+		//include_once __DIR__ . '/classes/class-wcbm-post.php';
+		//$post = WC_RP_Post::getInstance();
 
 		//$wcb_options = $this->wcb_options();
 		//$wcb_data    = $this->wcb_data();
@@ -135,17 +141,14 @@ class wc_bill_materials {
 
 		//register_deactivation_hook( __FILE__, [ $this, 'activate' ] );
 		include_once __DIR__ . '/classes/class-wcbm-settings.php';
-		include_once __DIR__ . '/classes/class-wcbm-post.php';
 
-		include_once __DIR__ . '/inc.php';
+		include_once __DIR__ . '/classes/tax_vendor.php';
 		//include_once __DIR__.'/classes/functions.php';
-		$set  = WC_RP_Settings::getInstance();
-		$post = WC_RP_Post::getInstance();
+		$set = WC_RP_Settings::getInstance();
 		//$db   = WC_Bom_Data::getInstance();
 		//$db   = WC_Bom_Data::getInstance();
 
-		add_action( 'init', [ $this, 'load_assets' ] );
-		add_action( 'admin_init', [ $this, 'create_options' ] );
+		//	add_action( 'admin_init', [ $this, 'create_options' ] );
 		add_filter( 'plugin_action_links', [ $this, 'plugin_links' ], 10, 5 );
 
 		//$this->zah();
@@ -163,50 +166,23 @@ class wc_bill_materials {
 		return static::$instance;
 	}
 
+
 	/**
 	 *
 	 */
 	public function check_init() {
 		global $wcb_data, $wcb_options;
 
-		//delete_option( WCB_DATA );
-		$wcb_data    = ( ! isset( $wcb_data ) ) ? $this->wcb_data() : $wcb_data;
-		$wcb_options = ( ! isset( $wcb_options ) ) ? $this->wcb_options() : $wcb_options;
-
-		$this->upgrade_data();
-
-	}
-
-	/**
-	 * @return mixed
-	 */
-	public function wcb_data() {
-		global $wcb_data;
-
 		if ( ! get_option( WCB_DATA ) ) {
 			add_option( WCB_DATA, $this->data );
 
 		}
-		$wcb_data = get_option( WCB_DATA );
 
-		return $wcb_data;
-	}
+		//delete_option( WCB_DATA );
+		$wcb_data = ( ! isset( $wcb_data ) ) ? get_option( WCB_DATA ) : $wcb_data;
+		//$wcb_options = ( ! isset( $wcb_options ) ) ? get_option( WCB_OPTIONS ) : $wcb_options;
 
-	/**
-	 * @return mixed
-	 */
-	public function wcb_options() {
-		global $wcb_options;
-
-		if ( ! get_option( WCB_OPTIONS ) ) {
-			add_option( WCB_OPTIONS, $this->options );
-		}
-
-		$wcb_options = get_option( WCB_OPTIONS );
-
-		//var_dump( $this->options );
-
-		return $wcb_options;
+		$this->upgrade_data();
 
 	}
 
@@ -219,7 +195,7 @@ class wc_bill_materials {
 		global $wcb_data;
 
 
-		if ( $wcb_data['init'] !== true || $wcb_data['db'] < WCB_DB ) {
+		if ( $wcb_data['init'] !== true || $wcb_data['db'] !== WCB_DB ) {
 
 			$table_name = $wpdb->prefix . WCB_TBL;
 
@@ -235,9 +211,9 @@ class wc_bill_materials {
 			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 			$this->data['init'] = true;
 
-			$this->data['val']['db'] = WCB_DB;
+			$this->data['db'] = WCB_DB;
 
-			update_option( WCB_DATA, $this->data['val'] );
+			update_option( WCB_DATA, $this->data['db'] );
 			dbDelta( $sql );
 		}
 
@@ -245,6 +221,7 @@ class wc_bill_materials {
 
 
 	}
+
 
 	/**
 	 *
@@ -260,6 +237,47 @@ class wc_bill_materials {
 		//delete_option( WCB_DATA );
 		//	delete_option( WCB_OPTIONS );
 		//update_option( 'wc_bom_settings', [ 'db_version' => null ] );
+	}
+
+	/**
+	 *
+	 */
+	public function load_assets() {
+		$url  = 'assets/';
+		$url2 = 'assets/';
+
+		//$val = 'http://cdnjs.cloudflare.com/ajax/libs/validate.js/0.12.0/validate.min.js';
+		//wp_enqueue_script( 'sweetalertjs', 'https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.0/sweetalert.min.js' );
+		//wp_enqueue_style( 'sweetalert_css', 'https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css' );
+		//wp_register_script( 'bom_adm_js', plugins_url( $url . 'wc-bom-admin.js', __FILE__ ), [ 'jquery' ] );
+		//wp_register_style( 'bom_css', plugins_url( $url2 . 'wc-bom.css', __FILE__ ) );
+
+		//wp_enqueue_script( 'valjs', $val );
+
+		wp_register_script( 'bom_adm_js', plugins_url( $url . 'wc-bom-admin.js', __FILE__ ), [ 'jquery' ] );
+		wp_register_script( 'bom_adm_min_js', plugins_url( $url . 'wc-bom-admin.min.js', __FILE__ ), [ 'jquery' ] );
+
+		wp_enqueue_script( 'bom_adm_js' );
+		//wp_enqueue_script( 'bom_adm_min_js' );
+		//}
+
+		//	if ( file_exists( __DIR__ . '/dist/wc-bom.min.css' ) ) {
+		wp_register_style( 'bom_css', plugins_url( $url . 'wc-bom.css', __FILE__ ) );
+		wp_register_style( 'bom_min_css', plugins_url( $url . 'wc-bom.min.css', __FILE__ ) );
+
+		wp_enqueue_style( 'bom_css' );
+		wp_enqueue_script( 'sweetalertjs', 'https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js' );
+		wp_enqueue_style( 'sweetalert_css', 'https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css' );
+
+		wp_register_script( 'chosen_js',
+			'https://cdnjs.cloudflare.com/ajax/libs/chosen/1.7.0/chosen.jquery.min.js', [ 'jquery' ] );
+		wp_register_style( 'chosen_css',
+			'https://cdnjs.cloudflare.com/ajax/libs/chosen/1.7.0/chosen.min.css' );
+		wp_enqueue_script( 'postbox' );
+		//wp_enqueue_script( 'bom_adm_js' );
+		wp_enqueue_script( 'chosen_js' );
+		wp_enqueue_style( 'chosen_css' );
+		//wp_enqueue_style( 'bom_css' );
 	}
 
 	/**
@@ -308,58 +326,7 @@ class wc_bill_materials {
 		return $actions;
 	}
 
-	/**
-	 *
-	 */
-	protected function load_assets() {
-		$url  = 'assets/';
-		$url2 = 'assets/';
 
-		//$val = 'http://cdnjs.cloudflare.com/ajax/libs/validate.js/0.12.0/validate.min.js';
-		//wp_enqueue_script( 'sweetalertjs', 'https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.0/sweetalert.min.js' );
-		//wp_enqueue_style( 'sweetalert_css', 'https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css' );
-		//wp_register_script( 'bom_adm_js', plugins_url( $url . 'wc-bom-admin.js', __FILE__ ), [ 'jquery' ] );
-		//wp_register_style( 'bom_css', plugins_url( $url2 . 'wc-bom.css', __FILE__ ) );
-
-		//wp_enqueue_script( 'valjs', $val );
-
-		$this->check_dist();
-		wp_enqueue_script( 'sweetalertjs', 'https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js' );
-		wp_enqueue_style( 'sweetalert_css', 'https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css' );
-
-		wp_register_script( 'chosen_js',
-			'https://cdnjs.cloudflare.com/ajax/libs/chosen/1.7.0/chosen.jquery.min.js', [ 'jquery' ] );
-		wp_register_style( 'chosen_css',
-			'https://cdnjs.cloudflare.com/ajax/libs/chosen/1.7.0/chosen.min.css' );
-		wp_enqueue_script( 'postbox' );
-		//wp_enqueue_script( 'bom_adm_js' );
-		wp_enqueue_script( 'chosen_js' );
-		wp_enqueue_style( 'chosen_css' );
-		//wp_enqueue_style( 'bom_css' );
-	}
-
-	/**
-	 *
-	 */
-	protected function check_dist() {
-
-		if ( file_exists( __DIR__ . '/dist/wc-bom-admin.min.js' ) ) {
-			wp_register_script( 'bom_adm_js', plugins_url( 'assets/wc-bom-admin.js', __FILE__ ), [ 'jquery' ] );
-			wp_register_script( 'bom_adm_min_js', plugins_url( 'dist/wc-bom-admin.min.js', __FILE__ ), [ 'jquery' ] );
-
-			wp_enqueue_script( 'bom_adm_js' );
-			//wp_enqueue_script( 'bom_adm_min_js' );
-		}
-
-		if ( file_exists( __DIR__ . '/dist/wc-bom.min.css' ) ) {
-			wp_register_style( 'bom_css', plugins_url( 'assets/wc-bom.css', __FILE__ ) );
-			wp_register_style( 'bom_min_css', plugins_url( 'dist/wc-bom.min.css', __FILE__ ) );
-
-			wp_enqueue_style( 'bom_css' );
-			//wp_enqueue_style( 'bom_min_css' );
-		}
-
-	}
 }
 
 $wcrp = wc_bill_materials::getInstance();

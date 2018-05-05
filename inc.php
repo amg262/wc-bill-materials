@@ -109,3 +109,4 @@ add_filter( 'post_type_link', function ( $link, $post ) {
 
 	return $link;
 }, 10, 2 );
+

@@ -30,8 +30,8 @@ class WC_RP_Post {
 
 		add_action( 'init', [ $this, 'register_part' ] );
 		add_action( 'init', [ $this, 'register_assembly' ] );
-		add_action( 'init', [ $this, 'register_part_cat' ] );
-		add_action( 'init', [ $this, 'register_part_tags' ] );
+		//add_action( 'init', [ $this, 'register_part_cat' ] );
+		//add_action( 'init', [ $this, 'register_part_tags' ] );
 
 		add_action( 'init', [ $this, 'register_inventory' ] );
 
