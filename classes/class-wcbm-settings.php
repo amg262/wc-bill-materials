@@ -378,6 +378,47 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
                 <h1></h1>
                 <tbody>
 
+				<?php $label = 'Copy Part Data';
+				$key         = $this->format_key( $label );
+				$id          = WCB_PREFIX . $key;
+				?>
+                <tr>
+                    <th>
+                        <span class="button primary" id="button_hit" name="button_hit">Generate</span>
+                    </th>
+                    <td>
+                        <select id="<?php _e( $key ); ?>"
+                                name="wcb_options[<?php _e( $key ); ?>]"
+                                data-placeholder="Select Product" value="wcb_options[<?php _e( $key ); ?>]"
+                                class="prod-select wc_bom_select chosen-select">
+							<?php _e( $this->build_select_options( $wcb_options[ $key ], [
+								'part',
+								'assembly',
+								'product',
+							] ), 'wc-related-products' ); ?>
+                        </select>
+                    </td>
+                </tr>
+
+
+				<?php $label = 'Copy Assembly Data';
+				$key         = $this->format_key( $label );
+				$id          = WCB_PREFIX . $key;
+				?>
+                <tr>
+                    <th>
+                        <span class="button primary" id="button_hit" name="button_hit">Generate</span>
+                    </th>
+                    <td>
+                        <select id="<?php _e( $key ); ?>"
+                                name="wcb_options[<?php _e( $key ); ?>]"
+                                data-placeholder="Select Product" value="wcb_options[<?php _e( $key ); ?>]"
+                                class="prod-select wc_bom_select chosen-select">
+							<?php _e( $this->build_select_options( $wcb_options[ $key ], [ 'assembly' ] ), 'wc-related-products' ); ?>
+                        </select>
+                    </td>
+                </tr>
+
 				<?php $label = 'Copy Product Data';
 				$key         = $this->format_key( $label );
 				$id          = WCB_PREFIX . $key;
@@ -391,7 +432,7 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
                                 name="wcb_options[<?php _e( $key ); ?>]"
                                 data-placeholder="Select Product" value="wcb_options[<?php _e( $key ); ?>]"
                                 class="prod-select wc_bom_select chosen-select">
-							<?php _e( $this->build_select_options( $wcb_options[ $key ], 'product' ), 'wc-related-products' ); ?>
+							<?php _e( $this->build_select_options( $wcb_options[ $key ], [ 'product' ] ), 'wc-related-products' ); ?>
                         </select>
                     </td>
                 </tr>
@@ -450,16 +491,19 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 
 
 		//var_dump( $data );
-		foreach ( $this->get_data( $post_type ) as $arr ) {
+		foreach ( $post_type as $type ) {
 
-			//var_dump( $arr );
-			if ( $data == $arr['id'] ) {
-				$selected = 'selected="selected"';
-			} else {
-				$selected = '';
+			foreach ( $this->get_data( $type ) as $arr ) {
+
+				//var_dump( $arr );
+				if ( $data == $arr['id'] ) {
+					$selected = 'selected="selected"';
+				} else {
+					$selected = '';
+				}
+				$option .= '<option id="' . $arr['id'] . '" value="' . $arr['id'] . '" ' . $selected . '">'
+				           . substr( $arr['text'], 0, 40 ) . '</option>';
 			}
-			$option .= '<option id="' . $arr['id'] . '" value="' . $arr['id'] . '" ' . $selected . '">'
-			           . substr( $arr['text'], 0, 40 ) . '</option>';
 		}
 
 		return $option;
@@ -493,61 +537,6 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 		return $out;
 	}
 
-	/**
-	 * @param $data
-	 *
-	 * @return string
-	 */
-	public function build_select_options2( $data ) {
-		$option = '';
-
-		//	echo $post_type;
-
-
-		//var_dump( $data );
-		foreach ( $this->get_parts() as $arr ) {
-
-			//var_dump( $arr );
-			if ( $data == $arr['id'] ) {
-				$selected = 'selected="selected"';
-			} else {
-				$selected = '';
-			}
-			$option .= '<option id="' . $arr['id'] . '" value="' . $arr['id'] . '" ' . $selected . '">'
-			           . substr( $arr['text'], 0, 40 ) . '</option>';
-		}
-
-		return $option;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function get_parts() {
-
-
-		//var_dump( $post_type );
-		$args = [
-			'post_type'      => 'part',
-			'post_status'    => 'publish',
-			'posts_per_page' => - 1,
-			'orderby'        => 'title',
-			'order'          => 'ASC',
-
-		];
-
-		$out   = [];
-		$posts = get_posts( $args );
-
-
-		var_dump( $posts );
-		foreach ( $posts as $p ) {
-			$out[] = [ 'id' => $p->ID, 'text' => $p->post_title ];
-		}
-		$json = json_encode( $out );
-
-		return $out;
-	}
 
 	/**
 	 *

@@ -17,7 +17,8 @@ var product = null;
 var data = null;
 var val = null;
 var id = null;
-var inven, ven, bom_post, rel_text, copy_prod_data;
+var inven, ven, bom_post, rel_text, copy_prod_data, copy_part_data;
+var copy_assem_data;
 var prod_bom = 0;
 
 jQuery(document).ready(function($) {
@@ -25,7 +26,6 @@ jQuery(document).ready(function($) {
   $('.chosen-select').chosen();
 
   prod_bom = $('#prod_bom').val();
-
 
   $('.wcb_cb').on('change', function(event, params) {
 
@@ -53,18 +53,21 @@ jQuery(document).ready(function($) {
     $('#wcb_prod_bom').attr('value', params['selected']);
 
     prod_bom = params['selected'];
-   // swal(prod_bom);
+    // swal(prod_bom);
 
   });
 
-  $('#button_hit').click(function() {
+  $('#button_hit').click(function(e) {
 
     // swal(prod_bom);
 
+    console.log(e);
     inven = $('#inventory').prop('checked');
     ven = $('#vendor').prop('checked');
     bom_post = $('#bom_post').prop('checked');
     rel_text = $('#related_text').val();
+    copy_part_data = $('#copy_part_data').val();
+    copy_assem_data = $('#copy_assembly_data').val();
     copy_prod_data = $('#copy_product_data').val();
     prod_bom = $('#prod_bom').val();
 
@@ -76,6 +79,8 @@ jQuery(document).ready(function($) {
       'bom_posts': bom_post,
       'related_text': rel_text,
       'copy_product_data': copy_prod_data,
+      'copy_part_data': copy_part_data,
+      'copy_assembly_data': copy_assem_data,
       'prod_bom': prod_bom,
     };
 
