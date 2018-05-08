@@ -122,21 +122,7 @@ class wc_bill_materials {
 		//delete_option( WCB_DATA );
 		//	$wcb_data = $this->wcb_data();
 		add_action( 'init', [ $this, 'load_assets' ] );
-
 		add_action( 'admin_init', [ $this, 'check_init' ] );
-		//include_once __DIR__ . '/classes/class-wcbm-post.php';
-		//$post = WC_RP_Post::getInstance();
-
-		//$wcb_options = $this->wcb_options();
-		//$wcb_data    = $this->wcb_data();
-		//$wcb_data = get_option( WCB_DATA );
-
-
-		//add_action( 'admin_init', [ $this, 'wcb_data' ] );
-		//var_dump( $wcb_data );
-
-		//delete_option( WCB_OPTIONS );
-		//delete_option( WCB_DATA );
 		//register_activation_hook( __FILE__, [ $this, 'activate' ] );
 
 		//register_deactivation_hook( __FILE__, [ $this, 'activate' ] );
@@ -145,12 +131,8 @@ class wc_bill_materials {
 		include_once __DIR__ . '/classes/tax_vendor.php';
 		//include_once __DIR__.'/classes/functions.php';
 		$set = WC_RP_Settings::getInstance();
-		//$db   = WC_Bom_Data::getInstance();
-		//$db   = WC_Bom_Data::getInstance();
-
 		//	add_action( 'admin_init', [ $this, 'create_options' ] );
-		add_filter( 'plugin_action_links', [ $this, 'plugin_links' ], 10, 5 );
-
+		//add_filter( 'plugin_action_links', [ $this, 'plugin_links' ], 10, 5 );
 		//$this->zah();
 	}
 

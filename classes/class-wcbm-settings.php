@@ -6,7 +6,7 @@
  *
  */
 
-//global $wcb_options;
+global $wcb_options;
 
 if ( ! is_admin() ) {
 	//wp_die( 'You must be an admin to view this.' );
@@ -26,17 +26,13 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 
 
 	public $options = [
-		'init'   => true,
-		'config' => [],
-
-	];
-	protected $options2 = [
-		'enable_inventory_posts',
-		'enable_vendor_taxonomy',
-		'enable_bom_posts',
-		'related_text',
-		'copy_product_data',
-		'option_keys',
+		'inventory'          => false,
+		'vendor'             => false,
+		'bom_posts'          => false,
+		'related_text'       => 'asdfasdf',
+		'copy_part_data'     => '',
+		'copy_assembly_data' => '',
+		'copy_product_data'  => '',
 	];
 
 	/**
@@ -51,9 +47,9 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 	 *
 	 */
 	public function init() {
-		if ( ! get_option( WCB_OPTIONS ) ) {
-			add_option( WCB_OPTIONS, [ 'init' => true ] );
-		}
+
+		//delete_option( WCB_OPTIONS );
+		add_action( 'admin_init', [ $this, 'pre_init' ] );
 
 		add_action( 'admin_menu', [ $this, 'wc_bom_menu' ], 99 );
 		add_action( 'admin_init', [ $this, 'page_init' ] );
@@ -77,10 +73,13 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 
 	public function pre_init() {
 
+		global $wcb_options;
+
 		if ( ! get_option( WCB_OPTIONS ) ) {
-			add_option( WCB_OPTIONS, [ 'init' => true ] );
+			add_option( WCB_OPTIONS, $this->options );
 		}
 
+		$wcb_options = get_option( WCB_OPTIONS );
 	}
 
 	/**
@@ -161,6 +160,11 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 
                     <a id="wcrp-nav-settings" href="#settings" class="nav-tab
                     <?php echo $active_tab === 'settings' ? 'nav-tab-active' : ''; ?>">Settings</a>
+
+
+                    <a id="wcrp-nav-options" href="#options" class="nav-tab
+                    <?php echo $active_tab === 'options' ? 'nav-tab-active' : ''; ?>">Options</a>
+
                 </h2>
 				<?php ?>
                 <form method="post" id="wc_bom_form" action="options.php">
@@ -176,11 +180,11 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 								settings_fields( 'wcb_options_group' );
 								do_settings_sections( 'wcb-options-admin' );
 								submit_button( 'Save Settings' );
+							} elseif ( $active_tab === 'options' ) {
+								settings_fields( 'wcb_options_group' );
+								do_settings_sections( 'wcb-options-admin' );
+								submit_button( 'Save Settings' );
 							}
-
-							submit_button( 'Delete', 'delete button-primary' );
-							submit_button( 'Delete', 'delete button-primary' );
-							submit_button( 'Reset', 'secondary' );
 
 							?>
                         </div>
@@ -225,6 +229,10 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 		}
 
 		//if ( isset( $input[ 'title' ] ) ) {
+		//	$new_input[ 'title' ] = sanitize_text_field( $input[ 'title' ] );
+		//}
+
+		if ( isset( $input[ 'title' ] ) ) {
 		//	$new_input[ 'title' ] = sanitize_text_field( $input[ 'title' ] );
 		//}
 
@@ -299,7 +307,7 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 
 		?>
 
-        <div id="wcrp-related">
+        <div id="wcrp-settings">
             <table class="form-table">
                 <tbody>
 
@@ -312,6 +320,7 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
                     <th scope="row"><label for="<?php _e( $id ); ?>"><?php _e( $label ); ?></label></th>
                     <td><input type="checkbox" id="<?php _e( $id ); ?>"
                                title="<?php _e( $id ); ?>"
+                               class="wcb_cb"
                                name="wcb_options[<?php _e( $key ); ?>]"
                                value="1"<?php checked( 1, $wcb_options[ $key ], true ); ?> /></td>
                 </tr>
@@ -324,6 +333,8 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
                     <th scope="row"><label for="<?php _e( $id ); ?>"><?php _e( $label ); ?></label></th>
                     <td><input type="checkbox" id="<?php _e( $id ); ?>"
                                title="<?php _e( $id ); ?>"
+                               class="wcb_cb"
+
                                name="wcb_options[<?php _e( $key ); ?>]"
                                value="1"<?php checked( 1, $wcb_options[ $key ], true ); ?> /></td>
                 </tr>
@@ -336,65 +347,8 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
                     <th scope="row"><label for="<?php _e( $id ); ?>"><?php _e( $label ); ?></label></th>
                     <td><input type="checkbox" id="<?php _e( $id ); ?>"
                                title="<?php _e( $id ); ?>"
-                               name="wcb_options[<?php _e( $key ); ?>]"
-                               value="1"<?php checked( 1, $wcb_options[ $key ], true ); ?> /></td>
-                </tr>
+                               class="wcb_cb"
 
-                <tr>
-					<?php $label = 'Part Category';
-					$key         = $this->format_key( $label );
-					$id          = WCB_PREFIX . $key;
-					?>
-                    <th scope="row"><label for="<?php _e( $id ); ?>"><?php _e( $label ); ?></label></th>
-                    <td><input type="checkbox" id="<?php _e( $id ); ?>"
-                               title="<?php _e( $id ); ?>"
-                               name="wcb_options[<?php _e( $key ); ?>]"
-                               value="1"<?php checked( 1, $wcb_options[ $key ], true ); ?> /></td>
-                </tr>
-
-                <tr>
-					<?php $label = 'Part Tags';
-					$key         = $this->format_key( $label );
-					$id          = WCB_PREFIX . $key;
-					?>
-                    <th scope="row"><label for="<?php _e( $id ); ?>"><?php _e( $label ); ?></label></th>
-                    <td><input type="checkbox" id="<?php _e( $id ); ?>"
-                               title="<?php _e( $id ); ?>"
-                               name="wcb_options[<?php _e( $key ); ?>]"
-                               value="1"<?php checked( 1, $wcb_options[ $key ], true ); ?> /></td>
-                </tr>
-
-                <tr><?php $label = 'Related Text';
-					$key         = $this->format_key( $label );
-					$id          = WCB_PREFIX . $key;
-					?>
-                    <th scope="row"><label for="<?php _e( $id ); ?>"><?php _e( $label ); ?></label></th>
-                    <td><input type="text"
-                               title="<?php _e( $id ); ?>"
-                               id="<?php _e( $id ); ?>"
-                               name="wcb_options[<?php _e( $key ); ?>]"
-                               value="<?php echo $wcb_options[ $key ]; ?>"/>
-                    </td>
-                </tr>
-
-
-                </tbody>
-            </table>
-        </div>
-
-        <div id="wcrp-related">
-            <table class="form-table">
-                <tbody>
-
-                <h1>Database</h1>
-                <tr>
-					<?php $label = 'Inventory';
-					$key         = $this->format_key( $label );
-					$id          = WCB_PREFIX . $key;
-					?>
-                    <th scope="row"><label for="<?php _e( $id ); ?>"><?php _e( $label ); ?></label></th>
-                    <td><input type="checkbox" id="<?php _e( $id ); ?>"
-                               title="<?php _e( $id ); ?>"
                                name="wcb_options[<?php _e( $key ); ?>]"
                                value="1"<?php checked( 1, $wcb_options[ $key ], true ); ?> /></td>
                 </tr>
@@ -417,49 +371,12 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
                 </tbody>
             </table>
         </div>
+
+
         <div id="wcrp-options">
             <table class="form-table">
                 <h1></h1>
                 <tbody>
-				<?php $label = 'Copy Part Data';
-				$key         = $this->format_key( $label );
-				$id          = WCB_PREFIX . $key;
-				?>
-
-                <tr>
-                    <th>
-                        <span class="button primary" id="button_hit" name="button_hit">Generate</span>
-                        <span class="button primary" id="button_hit" name="save_hit">Save</span>
-                    </th>
-                    <td>
-                        <select id="<?php _e( $key ); ?>"
-                                name="wcb_options[<?php _e( $key ); ?>]"
-                                data-placeholder="Select Product" value="wcb_options[<?php _e( $key ); ?>]"
-                                class="prod-select wc_bom_select chosen-select">
-							<?php _e( $this->build_select_options( $wcb_options[ $key ], 'part' ), 'wc-related-products' ); ?>
-                        </select>
-                        <input type="hidden" id="prod_bom" name="prod_bom" value="<?php echo $wcb_options[ $key ]; ?>"/>
-                    </td>
-                </tr>
-
-				<?php $label = 'Copy Assembly Data';
-				$key         = $this->format_key( $label );
-				$id          = WCB_PREFIX . $key;
-				?>
-                <tr>
-                    <th>
-                        <span class="button primary" id="button_hit" name="button_hit">Generate</span>
-                    </th>
-                    <td>
-                        <select id="<?php _e( $key ); ?>"
-                                name="wcb_options[<?php _e( $key ); ?>]"
-                                data-placeholder="Select Product" value="wcb_options[<?php _e( $key ); ?>]"
-                                class="prod-select wc_bom_select chosen-select">
-							<?php _e( $this->build_select_options( $wcb_options[ $key ], 'assembly' ), 'wc-related-products' ); ?>
-                        </select>
-                        <input type="hidden" id="prod_bom" name="prod_bom" value="<?php echo $wcb_options[ $key ]; ?>"/>
-                    </td>
-                </tr>
 
 				<?php $label = 'Copy Product Data';
 				$key         = $this->format_key( $label );
@@ -476,14 +393,28 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
                                 class="prod-select wc_bom_select chosen-select">
 							<?php _e( $this->build_select_options( $wcb_options[ $key ], 'product' ), 'wc-related-products' ); ?>
                         </select>
-                        <input type="hidden" id="prod_bom" name="prod_bom" value="<?php echo $wcb_options[ $key ]; ?>"/>
                     </td>
                 </tr>
 
 
-                <tr>
+                <tr><?php $label = 'Prod Bom';
+					$key         = $this->format_key( $label );
+					$id          = WCB_PREFIX . $key;
+					?>
+                    <th scope="row"><label for="<?php _e( $id ); ?>"><?php _e( $label ); ?></label></th>
+                    <td>
+                        <input type="hidden" id="<?php echo $id; ?>" name="wcb_options[<?php echo $key; ?>]"
+                               value="<?php echo $wcb_options[ $key ]; ?>"/>
 
+                        <span id="<?php echo 'wcb_' . $id; ?>"
+                              name="<?php echo $key; ?>"
+                              value="<?php echo $key; ?>">
+                            Output
+                        </span>
+                    </td>
                 </tr>
+
+
                 </tbody>
             </table>
         </div>
@@ -636,7 +567,9 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 			'product'   => $wcb_options['copy_product_data'],
 			'action'    => [ $this, 'wco_ajax' ], //'options'  => 'wc_bom_option[opt]',
 			'ajax_data' => $p,
-			'settings'  => json_encode( $wcb_options ),
+			'settings'  => $wcb_options,
+			'options'   => $this->options,
+			'prod_bom'  => $wcb_options['prod_bom'],
 		];
 		wp_localize_script( 'bom_adm_js', 'ajax_object', $ajax_object );
 	}
@@ -762,6 +695,9 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 		$set = $_POST['settings'];
 		$in  = $_POST['input'];
 
+
+		echo 'input- ';
+		var_dump( $in );
 
 		update_option( 'wcb_options', $in );
 
