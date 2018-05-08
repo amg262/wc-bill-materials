@@ -164,6 +164,7 @@ class wc_bill_materials {
 		$wcb_data = ( ! isset( $wcb_data ) ) ? get_option( WCB_DATA ) : $wcb_data;
 		//$wcb_options = ( ! isset( $wcb_options ) ) ? get_option( WCB_OPTIONS ) : $wcb_options;
 
+		//$this->delete_db();
 		$this->upgrade_data();
 
 	}
@@ -183,10 +184,11 @@ class wc_bill_materials {
 
 			$sql = "CREATE TABLE IF NOT EXISTS $table_name (
 					id int(11) NOT NULL AUTO_INCREMENT,
-					time datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
 					name tinytext NOT NULL,
 					data text NOT NULL,
 					url varchar(255) DEFAULT '' NOT NULL,
+					time datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+					active tinyint(1) DEFAULT -1 NOT NULL,
 					PRIMARY KEY  (id)
 				);";
 
@@ -265,7 +267,7 @@ class wc_bill_materials {
 	/**
 	 *
 	 */
-	protected function install_data() {
+	public function install_data() {
 		global $wpdb;
 
 		$welcome_name = 'Mr. WordPress';
@@ -290,7 +292,7 @@ class wc_bill_materials {
 	 *
 	 * @return array
 	 */
-	protected function plugin_links( $actions, $plugin_file ) {
+	public function plugin_links( $actions, $plugin_file ) {
 		static $plugin;
 
 		if ( $plugin === null ) {

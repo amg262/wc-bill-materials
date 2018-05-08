@@ -111,7 +111,6 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 			[ $this, 'sanitize' ] // Sanitize
 		);
 
-
 		add_settings_section(
 			'wcb_options_section', // ID
 			'', // Title
@@ -467,7 +466,7 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 	 *
 	 * @return string
 	 */
-	protected function format_key( $text ) {
+	public function format_key( $text ) {
 		$str   = str_replace( [ '-', ' ' ], '_', $text );
 		$lower = strtolower( $str );
 
@@ -699,6 +698,8 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 		//var_dump( $in );
 
 		var_dump( $m );
+
+		$this->install_data( 'name', json_encode( $m ), 'http://localhost/wp/' );
 		update_option( 'wcb_options', $in );
 
 		echo $in;
@@ -720,6 +721,26 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 		//
 
 		wp_die( 'Ajax finished.' );
+	}
+
+	/**
+	 *
+	 */
+	public function install_data( $name, $data, $url ) {
+		global $wpdb;
+
+		$table_name = $wpdb->prefix . WCB_TBL;
+
+		$wpdb->insert(
+			$table_name,
+			[
+				'time'   => current_time( 'mysql' ),
+				'name'   => $name,
+				'data'   => $data,
+				'url'    => $url,
+				'active' => - 1,
+			]
+		);
 	}
 
 
