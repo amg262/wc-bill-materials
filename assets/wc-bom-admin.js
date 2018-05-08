@@ -90,6 +90,7 @@ jQuery(document).ready(function($) {
       'security': ajax_object.nonce,
       'data': ajax_object.ajax_data,
       'product': prod_bom,
+      'part': copy_part_data,
       'settings': ajax_object.settings,
       'options': ajax_object.options,
       'input': arr,

@@ -9,7 +9,7 @@
 class WCB_Part {
 
 	private $meta = [
-		[ 'part_no', 'sku', 'cost', 'weight', 'stock' ]
+		[ 'part_no', 'sku', 'cost', 'weight', 'stock' ],
 	];
 
 	private $fields = [];
@@ -39,26 +39,30 @@ class WCB_Part {
 		echo( '__construct with 2 params called: ' . $a1 . ',' . $a2 . PHP_EOL );
 	}*/
 
-	public function get_part_data($post_id) {
+	public function get_part_data( $post_id ) {
 
-		$post = get_post($post_id);
+		$post = get_post( $post_id );
 
-		if ( isset($post)) {
-
-
-			$part_no = get_post_meta($post_id,'_part_no');
-			$sku = get_post_meta($post_id,'_sku');
-			$cost = get_post_meta($post_id,'_cost');
-			$weight = get_post_meta($post_id,'_weight');
-			$stock = get_post_meta($post_id,'_stock');
+		if ( isset( $post ) ) {
 
 
-			$this->part_data[] = $part_no;
-			$this->part_data[] = $sku;
-			$this->part_data[] = $cost;
-			$this->part_data[] = $weight;
-			$this->part_data[] = $stock;
+			$part_no = get_post_meta( $post_id, 'part_no', true );
+			$sku     = get_post_meta( $post_id, 'sku', true );
+			$cost    = get_post_meta( $post_id, 'cost', true );
+			$weight  = get_post_meta( $post_id, 'weight', true );
+			$stock   = get_post_meta( $post_id, 'stock', true );
+
+
+			$this->part_data['part_no'] = $part_no;
+			$this->part_data['sku']     = $sku;
+			$this->part_data['cost']    = $cost;
+			$this->part_data['weight']  = $weight;
+			$this->part_data['stock']   = $stock;
 		}
+
+		//$meta = get_post_meta( $post_id );
+
+		//return $meta;
 
 		return $this->part_data;
 
