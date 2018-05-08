@@ -205,39 +205,51 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 	public function sanitize( $input ) {
 
 
-		/*$new_input = [];
-		if ( isset( $input['show_related'] ) ) {
-			$new_input['show_related'] = absint( $input['show_related'] );
+		$new_input = [];
+		if ( isset( $input['inventory'] ) ) {
+
+			$new_input['inventory'] = (bool) $input['inventory'];
+		}else {
+			$new_input['vendor'] = false;
+
 		}
 
-		if ( isset( $input['related_total'] ) ) {
+		if ( isset( $input['vendor'] ) ) {
 
-			$new_input['related_total'] = absint( $input['related_total'] );
+			$new_input['vendor'] = absint( $input['vendor'] );
+		} else {
+			$new_input['vendor'] = false;
+
+		}
+
+		if ( isset( $input['bom_post'] ) ) {
+			$new_input['bom_post'] = absint( $input['bom_post'] );
 		}
 
 		if ( isset( $input['related_text'] ) ) {
-			$new_input['related_text'] = absint( $input['related_text'] );
+			$new_input['copy_product_data'] = absint( $input['copy_product_data'] );
+		}
+
+		if ( isset( $input['copy_part_data'] ) ) {
+			$new_input['copy_part_data'] = absint( $input['copy_part_data'] );
+		}
+
+		if ( isset( $input['copy_assembly_data'] ) ) {
+			$new_input['copy_assembly_data'] = absint( $input['copy_assembly_data'] );
 		}
 
 		if ( isset( $input['copy_product_data'] ) ) {
-			$new_input['copy_product_data'] = sanitize_text_field( $input['copy_product_data'] );
+			$new_input['copy_product_data'] = absint( $input['copy_product_data'] );
 		}
 
 		if ( isset( $input['prod_bom'] ) ) {
-			$new_input['prod_bom'] = sanitize_text_field( $input['prod_bom'] );
+			$new_input['prod_bom'] = absint( $input['prod_bom'] );
 		}
 
-		//if ( isset( $input[ 'title' ] ) ) {
-		//	$new_input[ 'title' ] = sanitize_text_field( $input[ 'title' ] );
-		//}
 
-		if ( isset( $input[ 'title' ] ) ) {
-		//	$new_input[ 'title' ] = sanitize_text_field( $input[ 'title' ] );
-		//}
+		return $new_input;
 
-
-		return $new_input;*/
-		return $input;
+		//return $input;
 	}
 
 	/**
