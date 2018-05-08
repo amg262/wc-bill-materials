@@ -184,9 +184,11 @@ class wc_bill_materials {
 
 			$sql = "CREATE TABLE IF NOT EXISTS $table_name (
 					id int(11) NOT NULL AUTO_INCREMENT,
-					name tinytext NOT NULL,
-					data text NOT NULL,
-					url varchar(255) DEFAULT '' NOT NULL,
+					title varchar(255),
+					post_id int(11),
+					type varchar(255),
+					sub_ids text,
+					data text ,
 					time datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
 					active tinyint(1) DEFAULT -1 NOT NULL,
 					PRIMARY KEY  (id)

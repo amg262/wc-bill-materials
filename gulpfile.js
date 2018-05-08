@@ -82,7 +82,7 @@ gulp.task('unzip', function() {
 gulp.task('serve', function() {
 
   browserSync.init({
-    proxy: 'http://localhost/wordpress/wp-admin/',
+    proxy: 'http://localhost/wp/wp-admin/',
   });
 
 });

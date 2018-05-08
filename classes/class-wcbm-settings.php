@@ -697,9 +697,16 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 		echo 'input- ';
 		//var_dump( $in );
 
+		$id = $m['id'];
+
+		$part_id = (int) $_POST['part'];
+
+		$pa   = get_post( $part_id );
+		$id   = $pa->ID;
+		$type = $pa->post_type;
 		var_dump( $m );
 
-		$this->install_data( 'name', json_encode( $m ), 'http://localhost/wp/' );
+		$this->install_data( 'name', $id, $type, '', json_encode( $m ) );
 		update_option( 'wcb_options', $in );
 
 		echo $in;
@@ -726,7 +733,7 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 	/**
 	 *
 	 */
-	public function install_data( $name, $data, $url ) {
+	public function install_data( $title, $post_id, $type, $sub_ids, $data ) {
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . WCB_TBL;
@@ -734,11 +741,13 @@ class WC_RP_Settings {//implements WC_Abstract_Settings {
 		$wpdb->insert(
 			$table_name,
 			[
-				'time'   => current_time( 'mysql' ),
-				'name'   => $name,
-				'data'   => $data,
-				'url'    => $url,
-				'active' => - 1,
+				'title'   => $title,
+				'post_id' => $post_id,
+				'type'    => $type,
+				'sub_ids' => $sub_ids,
+				'data'    => $data,
+				'time'    => current_time( 'mysql' ),
+				'active'  => - 1,
 			]
 		);
 	}
